@@ -9,9 +9,27 @@ Search DealerVision production logs through the SolarWinds Observability API usi
 
 ## Prerequisites
 
-- The `logs` CLI must be installed (`dotnet tool install --global DealerVision.SolarWindsLogSearch`)
+- The `logs` CLI tool must be installed (see [Installation](#installation) below)
 - `SOLARWINDS_API_TOKEN` environment variable must be set
 - Default data center: `na-01`
+
+## Installation
+
+The `logs` tool is bundled with this skill. Run the toolkit initialization:
+
+```bash
+# Windows
+.\init.ps1
+
+# Linux/macOS
+./init.sh
+```
+
+Or install manually:
+```bash
+# From the agent-skills toolkit directory
+dotnet tool install --global DealerVision.SolarWindsLogSearch --add-source ./tools/solarwinds-logs
+```
 
 ## Quick Commands
 
