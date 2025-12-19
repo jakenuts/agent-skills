@@ -34,7 +34,8 @@ agent-skills/
 ├── scripts/                     # Deployment and utility scripts
 │   ├── deploy.ps1              # Windows deployment
 │   ├── deploy.sh               # Linux/macOS deployment
-│   └── validate.ps1            # Skill validation
+│   ├── validate.ps1            # Skill validation (Windows)
+│   └── validate.sh             # Skill validation (Linux/macOS)
 ├── skills/                      # Skill definitions
 │   └── solarwinds-logs/
 │       ├── SKILL.md            # Main skill file (required)
@@ -115,8 +116,12 @@ cp -r skills/* ~/.codex/skills/
 3. Add optional reference files in `references/` for detailed documentation
 
 4. Validate the skill:
-   ```powershell
+   ```bash
+   # Windows
    .\scripts\validate.ps1 -Skill my-skill
+
+   # Linux/macOS
+   ./scripts/validate.sh my-skill
    ```
 
 ## Skill Format
