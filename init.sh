@@ -140,7 +140,7 @@ echo ""
 # ====================
 step "Checking prerequisites..."
 
-# Check .NET SDK
+# Check .NET SDK (required for dotnet tool install)
 DOTNET_VERSION=""
 if command -v dotnet &> /dev/null; then
     DOTNET_VERSION=$(dotnet --version 2>/dev/null || true)
@@ -148,6 +148,7 @@ fi
 
 if [[ -z "$DOTNET_VERSION" ]]; then
     err ".NET SDK not found. Please install from https://dotnet.microsoft.com/download"
+    info "SDK is required for 'dotnet tool install'. Tools will run on .NET 8, 9, or 10 runtimes."
     exit 1
 fi
 
@@ -156,8 +157,12 @@ ok ".NET SDK $DOTNET_VERSION"
 # Check version
 MAJOR_VERSION=$(echo "$DOTNET_VERSION" | cut -d. -f1)
 if [[ "$MAJOR_VERSION" -lt 8 ]]; then
-    warn ".NET SDK $DOTNET_VERSION detected. Version 8.0+ recommended."
+    err ".NET SDK $DOTNET_VERSION is too old. Version 8.0+ required."
+    info "Tools target .NET 8 with RollForward=LatestMajor (compatible with 8, 9, 10 runtimes)."
+    exit 1
 fi
+
+info "Tools target .NET 8 (forward-compatible with .NET 9 and 10 runtimes)"
 
 # ====================
 # Step 2: Install Tools

@@ -16,7 +16,8 @@ This toolkit provides reusable skills that follow the [Agent Skills specificatio
 
 ### Prerequisites
 
-- [.NET SDK 8.0+](https://dotnet.microsoft.com/download) installed
+- [.NET SDK 8.0+](https://dotnet.microsoft.com/download) (required for `dotnet tool install`)
+  - The bundled tools target .NET 8 with `RollForward=LatestMajor`, so they run on .NET 8, 9, or 10 runtimes
 - `jq` installed (Linux/macOS only, for JSON parsing)
 
 ### One-Command Setup

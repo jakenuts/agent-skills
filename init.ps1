@@ -94,7 +94,7 @@ Write-Host ""
 # ====================
 Write-Step "Checking prerequisites..."
 
-# Check .NET SDK
+# Check .NET SDK (required for dotnet tool install)
 $dotnetVersion = $null
 try {
     $dotnetVersion = (dotnet --version 2>$null)
@@ -105,14 +105,19 @@ try {
 
 if (-not $dotnetVersion) {
     Write-Err ".NET SDK not found. Please install from https://dotnet.microsoft.com/download"
+    Write-Info "SDK is required for 'dotnet tool install'. Tools will run on .NET 8, 9, or 10 runtimes."
     exit 1
 }
 
 # Check .NET version is 8.0+
 $majorVersion = [int]($dotnetVersion.Split('.')[0])
 if ($majorVersion -lt 8) {
-    Write-Warn ".NET SDK $dotnetVersion detected. Version 8.0+ recommended for best compatibility."
+    Write-Err ".NET SDK $dotnetVersion is too old. Version 8.0+ required."
+    Write-Info "Tools target .NET 8 with RollForward=LatestMajor (compatible with 8, 9, 10 runtimes)."
+    exit 1
 }
+
+Write-Info "Tools target .NET 8 (forward-compatible with .NET 9 and 10 runtimes)"
 
 # ====================
 # Step 2: Install Tools
