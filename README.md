@@ -16,8 +16,8 @@ This toolkit provides reusable skills that follow the [Agent Skills specificatio
 
 ### Prerequisites
 
-- [.NET SDK 8.0+](https://dotnet.microsoft.com/download) (required for `dotnet tool install`)
-  - The bundled tools target .NET 8 with `RollForward=LatestMajor`, so they run on .NET 8, 9, or 10 runtimes
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) (required for `dotnet tool install` and running tools)
+  - .NET 10 SDK can also build .NET 8 and 9 projects, so one SDK covers all scenarios
 - `jq` installed (Linux/macOS only, for JSON parsing)
 
 ### One-Command Setup
@@ -39,7 +39,7 @@ chmod +x init.sh
 
 **Docker Container:**
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:9.0
+FROM mcr.microsoft.com/dotnet/sdk:10.0
 
 # Install jq for JSON parsing
 RUN apt-get update && apt-get install -y jq && rm -rf /var/lib/apt/lists/*
@@ -50,6 +50,7 @@ WORKDIR /opt/agent-skills
 RUN chmod +x init.sh && ./init.sh --skip-skills
 
 # Skills are deployed per-user, so deploy at runtime or for specific user
+# Note: .NET 10 SDK can build .NET 8, 9, and 10 projects
 ```
 
 ### What `init` Does

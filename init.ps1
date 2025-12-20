@@ -105,19 +105,18 @@ try {
 
 if (-not $dotnetVersion) {
     Write-Err ".NET SDK not found. Please install from https://dotnet.microsoft.com/download"
-    Write-Info "SDK is required for 'dotnet tool install'. Tools will run on .NET 8, 9, or 10 runtimes."
     exit 1
 }
 
-# Check .NET version is 8.0+
+# Check .NET version is 10.0+
 $majorVersion = [int]($dotnetVersion.Split('.')[0])
-if ($majorVersion -lt 8) {
-    Write-Err ".NET SDK $dotnetVersion is too old. Version 8.0+ required."
-    Write-Info "Tools target .NET 8 with RollForward=LatestMajor (compatible with 8, 9, 10 runtimes)."
+if ($majorVersion -lt 10) {
+    Write-Err ".NET SDK $dotnetVersion is too old. Version 10.0+ required."
+    Write-Info "Tools target .NET 10. The .NET 10 SDK can also build .NET 8/9 projects."
     exit 1
 }
 
-Write-Info "Tools target .NET 8 (forward-compatible with .NET 9 and 10 runtimes)"
+Write-Info "Tools target .NET 10 (SDK also builds .NET 8/9 projects)"
 
 # ====================
 # Step 2: Install Tools
