@@ -1,0 +1,10 @@
+{
+  "name": "gbase-blog",
+  "site_url": "https://blog.gbase.com",
+  "api_url": "https://blog.gbase.com/wp-json/wp/v2",
+  "cli_path": "X:\\core\\tools\\blog-wordpress",
+  "env": {
+    "username": "WP_USERNAME",
+    "app_password": "WP_APP_PASSWORD"
+  }
+}
