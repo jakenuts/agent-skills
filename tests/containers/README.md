@@ -14,7 +14,6 @@ commands and prompts you define.
 - API keys available in your host environment:
   - `OPENAI_API_KEY` for Codex CLI
   - `ANTHROPIC_API_KEY` for Claude Code
-  - `SOLARWINDS_API_TOKEN` for the SolarWinds logs tool
 
 ## Setup
 
@@ -50,6 +49,8 @@ For each scenario in the config:
 3. Executes `./init.sh --deploy-only -t <agent>` to deploy skills.
 4. Lists the deployed skills directory in the container.
 5. Runs setup commands, the agent command, and each prompt command you specify.
+   Prompt commands can optionally export per-prompt env vars (for example, to
+   set `SOLARWINDS_API_TOKEN` only after the agent asks for it).
 
 ## Notes
 

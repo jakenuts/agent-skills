@@ -143,12 +143,38 @@ for i in $(seq 0 $((COUNT - 1))); do
         CMD_PARTS+=("$AGENT_CMD")
     fi
 
-    PROMPT_CMDS="$(echo "$SCENARIO_JSON" | jq -r '.prompts[]?.command')"
-    while IFS= read -r PROMPT_CMD; do
-        if [[ -n "$PROMPT_CMD" ]]; then
-            CMD_PARTS+=("$PROMPT_CMD")
-        fi
-    done <<< "$PROMPT_CMDS"
+    PROMPT_COUNT="$(echo "$SCENARIO_JSON" | jq -r '.prompts | length')"
+    if [[ "$PROMPT_COUNT" -gt 0 ]]; then
+        for p in $(seq 0 $((PROMPT_COUNT - 1))); do
+            PROMPT_CMD="$(echo "$SCENARIO_JSON" | jq -r ".prompts[$p].command // empty")"
+            PROMPT_NAME="$(echo "$SCENARIO_JSON" | jq -r ".prompts[$p].name // \"prompt-$p\"")"
+            if [[ -n "$PROMPT_CMD" ]]; then
+                ENV_EXPORTS=()
+                ENV_NAMES="$(echo "$SCENARIO_JSON" | jq -r ".prompts[$p].env[]?")"
+                MISSING_ENV=false
+                while IFS= read -r ENV_NAME; do
+                    if [[ -n "$ENV_NAME" ]]; then
+                        if [[ -z "${!ENV_NAME:-}" ]]; then
+                            err "Missing required env var for prompt '$PROMPT_NAME': $ENV_NAME"
+                            FAILURES=$((FAILURES + 1))
+                            MISSING_ENV=true
+                            break
+                        fi
+                        ESCAPED_VALUE="${!ENV_NAME//\'/\'\"\'\"\'}"
+                        ENV_EXPORTS+=("export $ENV_NAME='${ESCAPED_VALUE}'")
+                    fi
+                done <<< "$ENV_NAMES"
+                if [[ "$MISSING_ENV" == "true" ]]; then
+                    continue 3
+                fi
+                if [[ "${#ENV_EXPORTS[@]}" -gt 0 ]]; then
+                    CMD_PARTS+=("$(IFS=" && "; echo "${ENV_EXPORTS[*]}") && $PROMPT_CMD")
+                else
+                    CMD_PARTS+=("$PROMPT_CMD")
+                fi
+            fi
+        done
+    fi
 
     CMD="$(IFS=" && "; echo "${CMD_PARTS[*]}")"
 
@@ -160,11 +186,11 @@ for i in $(seq 0 $((COUNT - 1))); do
     DOCKER_ARGS+=("$IMAGE" bash -lc "$CMD")
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        info "DRY RUN: docker ${DOCKER_ARGS[*]}"
+        info "DRY RUN: docker run --rm -v <repo>:/opt/agent-skills -w /opt/agent-skills -e <env vars> $IMAGE bash -lc <commands>"
         continue
     fi
 
-    info "docker ${DOCKER_ARGS[*]}"
+    info "docker run --rm -v <repo>:/opt/agent-skills -w /opt/agent-skills -e <env vars> $IMAGE bash -lc <commands>"
     if ! docker "${DOCKER_ARGS[@]}"; then
         err "Scenario failed: $NAME"
         FAILURES=$((FAILURES + 1))

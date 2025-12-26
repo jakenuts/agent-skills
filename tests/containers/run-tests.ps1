@@ -163,7 +163,24 @@ foreach ($scenario in $scenarios) {
     if ($scenario.prompts) {
         foreach ($prompt in $scenario.prompts) {
             if ($prompt.command) {
-                $cmdParts += $prompt.command
+                $promptCmd = $prompt.command
+                if ($prompt.env) {
+                    $exports = @()
+                    foreach ($envName in $prompt.env) {
+                        $envValue = [Environment]::GetEnvironmentVariable($envName)
+                        if (-not $envValue) {
+                            Write-Err "Missing required env var for prompt '$($prompt.name)': $envName"
+                            $failures++
+                            continue 3
+                        }
+                        $escaped = $envValue.Replace("'", "'\"'\"'")
+                        $exports += "export $envName='$escaped'"
+                    }
+                    if ($exports.Count -gt 0) {
+                        $promptCmd = ($exports -join " && ") + " && " + $promptCmd
+                    }
+                }
+                $cmdParts += $promptCmd
             }
         }
     }
@@ -185,11 +202,11 @@ foreach ($scenario in $scenarios) {
     $dockerArgs += @($scenario.image, 'bash', '-lc', $cmd)
 
     if ($DryRun) {
-        Write-Info "DRY RUN: docker $($dockerArgs -join ' ')"
+        Write-Info "DRY RUN: docker run --rm -v <repo>:/opt/agent-skills -w /opt/agent-skills -e <env vars> $($scenario.image) bash -lc <commands>"
         continue
     }
 
-    Write-Info "docker $($dockerArgs -join ' ')"
+    Write-Info "docker run --rm -v <repo>:/opt/agent-skills -w /opt/agent-skills -e <env vars> $($scenario.image) bash -lc <commands>"
     & docker @dockerArgs
     if ($LASTEXITCODE -ne 0) {
         Write-Err "Scenario failed: $($scenario.name)"
