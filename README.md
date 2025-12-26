@@ -286,6 +286,12 @@ Skills follow a three-tier context model:
 3. Test with your target agent
 4. Submit a pull request
 
+## Container Test Harness
+
+If you need to validate the toolkit against containerized Claude Code or Codex
+CLI installs, see `tests/containers/README.md` for a separate, optional test
+harness that mounts this repo into a container and runs `init.sh`.
+
 ## Resources
 
 - [Agent Skills Specification](https://agentskills.io/specification)

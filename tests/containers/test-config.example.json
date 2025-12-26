@@ -1,0 +1,51 @@
+{
+  "scenarios": [
+    {
+      "name": "codex-cli-solarwinds",
+      "image": "agent-skills-codex-cli:local",
+      "build": {
+        "context": "tests/containers/images/codex-cli",
+        "dockerfile": "Dockerfile",
+        "args": {
+          "CODEX_VERSION": "latest",
+          "DOTNET_CHANNEL": "10.0"
+        }
+      },
+      "agent": "codex",
+      "requiredEnv": ["OPENAI_API_KEY", "SOLARWINDS_API_TOKEN"],
+      "setupCommands": [
+        "printenv OPENAI_API_KEY | codex login --with-api-key",
+        "codex --version"
+      ],
+      "prompts": [
+        {
+          "name": "skill-solarwinds-logs",
+          "command": "codex exec --sandbox danger-full-access --full-auto --skip-git-repo-check \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with ./init.sh --install-tool solarwinds-logs. If SOLARWINDS_API_TOKEN is missing, explain how to set it. Then run the logs tool and summarize the results.\""
+        }
+      ]
+    },
+    {
+      "name": "claude-code-solarwinds",
+      "image": "agent-skills-claude-code:local",
+      "build": {
+        "context": "tests/containers/images/claude-code",
+        "dockerfile": "Dockerfile",
+        "args": {
+          "CLAUDE_CODE_VERSION": "latest",
+          "DOTNET_CHANNEL": "10.0"
+        }
+      },
+      "agent": "claude",
+      "requiredEnv": ["ANTHROPIC_API_KEY", "SOLARWINDS_API_TOKEN"],
+      "setupCommands": [
+        "claude --version"
+      ],
+      "prompts": [
+        {
+          "name": "skill-solarwinds-logs",
+          "command": "printf \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with ./init.sh --install-tool solarwinds-logs. If SOLARWINDS_API_TOKEN is missing, explain how to set it. Then run the logs tool and summarize the results.\\n\" | claude"
+        }
+      ]
+    }
+  ]
+}
