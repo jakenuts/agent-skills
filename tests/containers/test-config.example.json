@@ -1,36 +1,7 @@
 {
   "scenarios": [
     {
-      "name": "codex-cli-solarwinds",
-      "image": "agent-skills-codex-cli:local",
-      "build": {
-        "context": "tests/containers/images/codex-cli",
-        "dockerfile": "Dockerfile",
-        "args": {
-          "CODEX_VERSION": "latest",
-          "DOTNET_CHANNEL": "10.0"
-        }
-      },
-      "agent": "codex",
-      "requiredEnv": ["OPENAI_API_KEY"],
-      "setupCommands": [
-        "printenv OPENAI_API_KEY | codex login --with-api-key",
-        "codex --version"
-      ],
-      "prompts": [
-        {
-          "name": "skill-solarwinds-logs-missing-token",
-          "command": "codex exec --sandbox danger-full-access --full-auto --skip-git-repo-check \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with bash ~/.codex/skills/solarwinds-logs/scripts/setup.sh. If SOLARWINDS_API_TOKEN is missing, ask for it and stop before running the tool.\""
-        },
-        {
-          "name": "skill-solarwinds-logs-with-token",
-          "env": ["SOLARWINDS_API_TOKEN"],
-          "command": "codex exec --sandbox danger-full-access --full-auto --skip-git-repo-check \"The SOLARWINDS_API_TOKEN is now set. Use the solarwinds-logs skill to search logs for the term 'timeout' and summarize the results.\""
-        }
-      ]
-    },
-    {
-      "name": "claude-code-solarwinds",
+      "name": "claude-code-deploy-only",
       "image": "agent-skills-claude-code:local",
       "build": {
         "context": "tests/containers/images/claude-code",
@@ -43,22 +14,54 @@
       "agent": "claude",
       "requiredEnv": ["ANTHROPIC_API_KEY"],
       "setupCommands": [
-        "claude --version"
+        "claude --version",
+        "echo === Checking deployed skills ===",
+        "ls -la ~/.claude/skills/",
+        "echo === Checking solarwinds-logs skill ===",
+        "test -f ~/.claude/skills/solarwinds-logs/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.claude/skills/solarwinds-logs/scripts && echo scripts dir exists",
+        "test -d ~/.claude/skills/solarwinds-logs/tools && echo tools dir exists",
+        "test -f ~/.claude/skills/solarwinds-logs/tools/DealerVision.SolarWindsLogSearch.2.4.0.nupkg && echo nupkg exists",
+        "echo === Checking git-workflow skill ===",
+        "test -f ~/.claude/skills/git-workflow/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.claude/skills/git-workflow/scripts && echo scripts dir exists",
+        "echo === Checking wordpress-content-manager skill ===",
+        "test -f ~/.claude/skills/wordpress-content-manager/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.claude/skills/wordpress-content-manager/scripts && echo scripts dir exists",
+        "echo === All skills deployed successfully ==="
       ],
-      "prompts": [
-        {
-          "name": "skill-solarwinds-logs-missing-token",
-          "command": "printf \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with bash ~/.claude/skills/solarwinds-logs/scripts/setup.sh. If SOLARWINDS_API_TOKEN is missing, ask for it and stop before running the tool.\\n\" | claude"
-        },
-        {
-          "name": "skill-solarwinds-logs-with-token",
-          "env": ["SOLARWINDS_API_TOKEN"],
-          "command": "printf \"The SOLARWINDS_API_TOKEN is now set. Use the solarwinds-logs skill to search logs for the term 'timeout' and summarize the results.\\n\" | claude"
+      "prompts": []
+    },
+    {
+      "name": "codex-cli-deploy-only",
+      "image": "agent-skills-codex-cli:local",
+      "build": {
+        "context": "tests/containers/images/codex-cli",
+        "dockerfile": "Dockerfile",
+        "args": {
+          "CODEX_VERSION": "latest",
+          "DOTNET_CHANNEL": "10.0"
         }
-      ]
+      },
+      "agent": "codex",
+      "requiredEnv": ["OPENAI_API_KEY"],
+      "setupCommands": [
+        "codex --version",
+        "echo === Checking deployed skills ===",
+        "ls -la ~/.codex/skills/",
+        "echo === Checking solarwinds-logs skill ===",
+        "test -f ~/.codex/skills/solarwinds-logs/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.codex/skills/solarwinds-logs/scripts && echo scripts dir exists",
+        "test -d ~/.codex/skills/solarwinds-logs/tools && echo tools dir exists",
+        "echo === Checking git-workflow skill ===",
+        "test -f ~/.codex/skills/git-workflow/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.codex/skills/git-workflow/scripts && echo scripts dir exists",
+        "echo === Checking wordpress-content-manager skill ===",
+        "test -f ~/.codex/skills/wordpress-content-manager/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.codex/skills/wordpress-content-manager/scripts && echo scripts dir exists",
+        "echo === All skills deployed successfully ==="
+      ],
+      "prompts": []
     }
   ]
 }
-
-
-

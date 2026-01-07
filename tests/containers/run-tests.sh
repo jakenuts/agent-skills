@@ -191,7 +191,7 @@ for i in $(seq 0 $((COUNT - 1))); do
     fi
 
     info "docker run --rm -v <repo>:/opt/agent-skills -w /opt/agent-skills -e <env vars> $IMAGE bash -lc <commands>"
-    if ! docker "${DOCKER_ARGS[@]}"; then
+    if ! MSYS_NO_PATHCONV=1 docker "${DOCKER_ARGS[@]}"; then
         err "Scenario failed: $NAME"
         FAILURES=$((FAILURES + 1))
     else

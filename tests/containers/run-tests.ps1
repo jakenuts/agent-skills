@@ -173,7 +173,7 @@ foreach ($scenario in $scenarios) {
                             $failures++
                             continue 3
                         }
-                        $escaped = $envValue.Replace("'", "'\"'\"'")
+                        $escaped = $envValue.Replace("'", "'" + [char]34 + "'" + [char]34 + "'")
                         $exports += "export $envName='$escaped'"
                     }
                     if ($exports.Count -gt 0) {
@@ -190,7 +190,7 @@ foreach ($scenario in $scenarios) {
     $dockerArgs = @(
         'run',
         '--rm',
-        '-v', "$RepoRoot:/opt/agent-skills",
+        '-v', "${RepoRoot}:/opt/agent-skills",
         '-w', '/opt/agent-skills'
     )
 
