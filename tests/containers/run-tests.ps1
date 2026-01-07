@@ -144,7 +144,7 @@ foreach ($scenario in $scenarios) {
         'set -e',
         'cd /opt/agent-skills',
         'chmod +x ./init.sh',
-        "./init.sh --deploy-only -t $agent",
+        "./init.sh",
         "ls -la $skillsPath"
     )
 

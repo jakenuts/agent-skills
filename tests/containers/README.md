@@ -46,7 +46,7 @@ For each scenario in the config:
 
 1. Validates required API keys are set on the host.
 2. Runs a container with the repo mounted at `/opt/agent-skills`.
-3. Executes `./init.sh --deploy-only -t <agent>` to deploy skills.
+3. Executes `./init.sh` to deploy skills to detected agents.
 4. Lists the deployed skills directory in the container.
 5. Runs setup commands, the agent command, and each prompt command you specify.
    Prompt commands can optionally export per-prompt env vars (for example, to

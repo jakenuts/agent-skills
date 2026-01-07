@@ -15,13 +15,17 @@ Manage WordPress posts in a site-agnostic way. This skill defaults to the Gbase 
 
 Ensure these are present on the target machine/container:
 - This skill folder (copied by agent-skills deploy scripts)
-- The WordPress CLI tool folder from `X:\core\tools\blog-wordpress`
+- The WordPress CLI tool folder referenced by the active profile (for example `X:\core\tools\blog-wordpress`) or `WP_CLI_PATH`
+- Optional: place the CLI under `tools/blog-wordpress` in this skill and set `WP_CLI_PATH` accordingly
+  - If `tools/blog-wordpress` exists, the setup script will prefer it automatically
 
 Do not install Node or npm packages at this stage.
 
 ## Stage 2: Lazy Runtime Setup (Non-Interactive)
 
-Run the setup script the first time the skill is activated. It verifies Node, installs dependencies, and validates access.
+Run the setup script the first time the skill is activated. It verifies Node and npm, installs dependencies, and validates access.
+
+If Node.js is missing, the setup script will attempt to install it using common package managers. If that fails, install Node.js 16+ manually and rerun setup.
 
 ### Windows (PowerShell)
 ```powershell
@@ -34,6 +38,7 @@ bash ~/.codex/skills/wordpress-content-manager/scripts/setup.sh
 ```
 
 If you are using Claude Code, replace `~/.codex/skills` with `~/.claude/skills`.
+Validation requires `WP_USERNAME` and `WP_APP_PASSWORD`; if missing, ask the user and stop before running setup.
 
 ## Profiles and Site Selection
 

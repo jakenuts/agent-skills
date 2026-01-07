@@ -127,7 +127,7 @@ for i in $(seq 0 $((COUNT - 1))); do
         "set -e"
         "cd /opt/agent-skills"
         "chmod +x ./init.sh"
-        "./init.sh --deploy-only -t $AGENT"
+        "./init.sh"
         "ls -la $SKILLS_PATH"
     )
 

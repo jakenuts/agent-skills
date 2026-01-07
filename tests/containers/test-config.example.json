@@ -20,7 +20,7 @@
       "prompts": [
         {
           "name": "skill-solarwinds-logs-missing-token",
-          "command": "codex exec --sandbox danger-full-access --full-auto --skip-git-repo-check \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with ./init.sh --install-tool solarwinds-logs. If SOLARWINDS_API_TOKEN is missing, ask for it and stop before running the tool.\""
+          "command": "codex exec --sandbox danger-full-access --full-auto --skip-git-repo-check \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with bash ~/.codex/skills/solarwinds-logs/scripts/setup.sh. If SOLARWINDS_API_TOKEN is missing, ask for it and stop before running the tool.\""
         },
         {
           "name": "skill-solarwinds-logs-with-token",
@@ -48,7 +48,7 @@
       "prompts": [
         {
           "name": "skill-solarwinds-logs-missing-token",
-          "command": "printf \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with ./init.sh --install-tool solarwinds-logs. If SOLARWINDS_API_TOKEN is missing, ask for it and stop before running the tool.\\n\" | claude"
+          "command": "printf \"Use the solarwinds-logs skill to search logs for the term 'timeout'. If the logs tool is not installed, install it with bash ~/.claude/skills/solarwinds-logs/scripts/setup.sh. If SOLARWINDS_API_TOKEN is missing, ask for it and stop before running the tool.\\n\" | claude"
         },
         {
           "name": "skill-solarwinds-logs-with-token",
@@ -59,3 +59,6 @@
     }
   ]
 }
+
+
+

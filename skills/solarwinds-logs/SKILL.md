@@ -12,65 +12,77 @@ metadata:
 
 Search DealerVision production logs through the SolarWinds Observability API using the `logs` CLI tool.
 
-## First-Time Setup
-
-This skill requires the `logs` CLI tool and proper environment configuration.
+## First-Time Setup (On Demand)
+This skill requires the `logs` CLI tool, .NET 10, and a SolarWinds API token. Install only when the skill is activated.
 
 ### 1. Check if Already Installed
 
+Linux/macOS:
 ```bash
-# Test if the tool is available
 logs --help 2>/dev/null || echo "Not installed - setup required"
-
-# Check environment variable
-echo $SOLARWINDS_API_TOKEN
+echo "$SOLARWINDS_API_TOKEN"
 ```
 
-### 2. Install the Tool (One-Time Setup)
+Windows (PowerShell):
+```powershell
+logs --help 2>$null
+Write-Host "SOLARWINDS_API_TOKEN=$env:SOLARWINDS_API_TOKEN"
+```
 
-If the tool is not installed, run:
+### 2. Install Dependencies and Tool (One-Time Setup)
 
+Run the setup script from the deployed skill folder:
+
+Linux/macOS:
 ```bash
-# From the agent-skills toolkit directory
-cd /root/agent-skills
-
-# Quick install (handles prerequisites automatically)
-./init.sh --install-tool solarwinds-logs
+bash ~/.codex/skills/solarwinds-logs/scripts/setup.sh
 ```
+
+Windows (PowerShell):
+```powershell
+pwsh ~/.codex/skills/solarwinds-logs/scripts/setup.ps1
+```
+
+If you are using Claude Code, replace `~/.codex/skills` with `~/.claude/skills`.
 
 **What this does:**
-- Checks for .NET SDK 10.0+ (shows installation guide if missing)
-- Installs the `logs` CLI tool globally (persists across sessions)
-- Verifies the installation works
+- Installs .NET SDK 10 if missing (user-level)
+- Installs the `logs` CLI tool from the skill-local package
+- Verifies the installation
 - Checks for required environment variables
 
-**Note:** Installation only happens once - the tool becomes globally available.
+**Note:** Installation only happens once; the tool becomes globally available.
 
 ### 3. Configure Environment Variable
 
-The tool requires a SolarWinds API token for authentication:
+The tool requires a SolarWinds API token for authentication.
 
+Linux/macOS:
 ```bash
-# Option 1: Set for current session
 export SOLARWINDS_API_TOKEN="your-token-here"
+```
 
-# Option 2: Set permanently (recommended)
-echo 'export SOLARWINDS_API_TOKEN="your-token-here"' >> ~/.bashrc
-source ~/.bashrc
+Windows (PowerShell):
+```powershell
+$env:SOLARWINDS_API_TOKEN = "your-token-here"
 ```
 
 **To obtain a token:**
 1. Log in to SolarWinds Observability
-2. Navigate to Settings → API Tokens
+2. Navigate to Settings -> API Tokens
 3. Create a new token with 'Logs Read' permission
 
 ### 4. Verify Setup
 
+Linux/macOS:
 ```bash
-# Confirm tool is installed
 dotnet tool list --global | grep SolarWindsLogSearch
+logs "test" --limit 1
+```
 
-# Confirm environment is configured
+Windows (PowerShell):
+```powershell
+dotnet tool list --global | Select-String SolarWindsLogSearch
 logs "test" --limit 1
 ```
 
@@ -82,11 +94,14 @@ logs "test" --limit 1
 
 ## Alternative: Manual Installation
 
-If you prefer to install manually without the init script:
+If you prefer to install manually without the setup script:
 
 ```bash
 # Requires .NET SDK 10.0+
-dotnet tool install --global DealerVision.SolarWindsLogSearch --version 2.4.0 --add-source /root/agent-skills/tools/solarwinds-logs
+dotnet tool install --global DealerVision.SolarWindsLogSearch --version 2.4.0 --add-source ~/.codex/skills/solarwinds-logs/tools
+
+# If using Claude Code, replace ~/.codex/skills with ~/.claude/skills
+# Windows path: %USERPROFILE%\\.codex\\skills\\solarwinds-logs\\tools (or .claude for Claude Code)
 
 # Verify
 logs --help
@@ -145,3 +160,7 @@ Returns JSON with:
 For detailed documentation on query syntax, MCP server modes, and advanced patterns, see [references/REFERENCE.md](references/REFERENCE.md).
 
 For common investigation patterns and recipes, see [references/RECIPES.md](references/RECIPES.md).
+
+
+
+
