@@ -134,7 +134,7 @@ function formatOutput(data, jsonOutput) {
 
 const argv = process.argv.slice(2);
 const { flags, positionals } = parseArgs(argv);
-const profileName = flags.profile || process.env.WP_PROFILE || "gbase-blog";
+const profileName = flags.profile || process.env.WP_PROFILE || "example-blog";
 const jsonOutput = Boolean(flags.json);
 
 let activeProfile;

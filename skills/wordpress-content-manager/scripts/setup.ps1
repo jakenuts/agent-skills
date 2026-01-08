@@ -6,7 +6,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 if ([string]::IsNullOrWhiteSpace($Profile)) {
-    $Profile = "gbase-blog"
+    $Profile = "example-blog"
 }
 
 $skillDir = Split-Path -Parent $PSScriptRoot

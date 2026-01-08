@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE="${WP_PROFILE:-gbase-blog}"
+PROFILE="${WP_PROFILE:-example-blog}"
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROFILE_PATH="${SKILL_DIR}/profiles/${PROFILE}.json"
