@@ -4,7 +4,7 @@
       "name": "claude-code-deploy-only",
       "image": "agent-skills-claude-code:local",
       "build": {
-        "context": "tests/containers/images/claude-code",
+        "context": ".dev/tests/containers/images/claude-code",
         "dockerfile": "Dockerfile",
         "args": {
           "CLAUDE_CODE_VERSION": "latest",
@@ -36,7 +36,7 @@
       "name": "codex-cli-deploy-only",
       "image": "agent-skills-codex-cli:local",
       "build": {
-        "context": "tests/containers/images/codex-cli",
+        "context": ".dev/tests/containers/images/codex-cli",
         "dockerfile": "Dockerfile",
         "args": {
           "CODEX_VERSION": "latest",

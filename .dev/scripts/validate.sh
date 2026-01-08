@@ -19,7 +19,7 @@ NC='\033[0m'
 
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILLS_PATH="${SCRIPT_DIR}/../skills"
+SKILLS_PATH="${SCRIPT_DIR}/../../skills"
 
 # Counters
 ERRORS=0

@@ -21,7 +21,7 @@ if [[ ! -f "$CONFIG" ]]; then
     exit 1
 fi
 
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 INIT_PATH="$REPO_ROOT/init.sh"
 if [[ ! -f "$INIT_PATH" ]]; then
     err "init.sh not found at $INIT_PATH"

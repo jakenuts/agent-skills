@@ -1,0 +1,10 @@
+{
+  "name": "example-blog",
+  "site_url": "https://blog.example.com",
+  "api_url": "https://blog.example.com/wp-json/wp/v2",
+  "cli_path": null,
+  "env": {
+    "username": "WP_USERNAME",
+    "app_password": "WP_APP_PASSWORD"
+  }
+}

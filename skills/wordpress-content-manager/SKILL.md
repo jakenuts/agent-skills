@@ -1,21 +1,21 @@
 ---
 name: wordpress-content-manager
-description: WordPress content management via REST API for listing, searching, viewing, creating, updating, and deleting posts (including draft/scheduled/published) with tags and categories. Use when managing WordPress blog content, especially for blog.gbase.com or other sites configured via profiles. Requires Node.js and WordPress REST API credentials.
+description: WordPress content management via REST API for listing, searching, viewing, creating, updating, and deleting posts (including draft/scheduled/published) with tags and categories. Use when managing WordPress blog content via configurable site profiles. Requires Node.js and WordPress REST API credentials.
 compatibility: Requires Node.js 16+ and npm. Uses WP_USERNAME and WP_APP_PASSWORD (Application Password) for authentication.
 metadata:
   requires-setup: true
-  default-profile: gbase-blog
+  default-profile: example-blog
 ---
 
 # WordPress Content Manager
 
-Manage WordPress posts in a site-agnostic way. This skill defaults to the Gbase blog profile but supports multiple site profiles.
+Manage WordPress posts in a site-agnostic way. Configure site profiles for your WordPress installations.
 
 ## Stage 1: Copy Only (No Install)
 
 Ensure these are present on the target machine/container:
 - This skill folder (copied by agent-skills deploy scripts)
-- The WordPress CLI tool folder referenced by the active profile (for example `X:\core\tools\blog-wordpress`) or `WP_CLI_PATH`
+- The WordPress CLI tool folder referenced by the active profile (for example `/path/to/blog-wordpress`) or `WP_CLI_PATH`
 - Optional: place the CLI under `tools/blog-wordpress` in this skill and set `WP_CLI_PATH` accordingly
   - If `tools/blog-wordpress` exists, the setup script will prefer it automatically
 
@@ -46,7 +46,7 @@ Profiles live under `profiles/` in this skill. Select a profile with:
 - `--profile <name>` flag
 - or `WP_PROFILE=<name>` env var
 
-If neither is set, the default profile `gbase-blog` is used.
+If neither is set, the default profile `example-blog` is used.
 
 See `references/profiles.md` for the profile format and overrides.
 

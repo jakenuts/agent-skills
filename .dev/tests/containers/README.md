@@ -20,10 +20,10 @@ commands and prompts you define.
 1. Copy the example config and edit it to match your containers:
 
    ```powershell
-   copy tests\containers\test-config.example.json tests\containers\test-config.json
+   copy .dev\tests\containers\test-config.example.json .dev\tests\containers\test-config.json
    ```
 
-2. Update `tests/containers/test-config.json`:
+2. Update `.dev/tests/containers/test-config.json`:
    - Set `image` to the container you want to test
    - Optionally set `build` to build a local image from a Dockerfile
    - Set `setupCommands` and `prompts` to your validation commands
@@ -31,13 +31,13 @@ commands and prompts you define.
 ## Run (PowerShell)
 
 ```powershell
-.\tests\containers\run-tests.ps1
+.\.dev\tests\containers\run-tests.ps1
 ```
 
 ## Run (bash)
 
 ```bash
-./tests/containers/run-tests.sh
+./.dev/tests/containers/run-tests.sh
 ```
 
 ## What It Does
@@ -60,4 +60,3 @@ For each scenario in the config:
   CLI (from the Codex and Claude Code repositories). No official public Docker
   images were found on Docker Hub during setup, so these images are built locally.
 - You are responsible for choosing valid agent CLI commands for each container.
-- If your Docker Desktop requires drive sharing, ensure `X:` is shared.

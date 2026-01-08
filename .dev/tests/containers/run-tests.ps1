@@ -22,7 +22,7 @@ if (-not (Test-Path $Config)) {
     exit 1
 }
 
-$RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
+$RepoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..\..')
 $InitPath = Join-Path $RepoRoot 'init.sh'
 if (-not (Test-Path $InitPath)) {
     Write-Err "init.sh not found at $InitPath"

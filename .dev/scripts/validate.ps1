@@ -31,7 +31,7 @@ $ErrorActionPreference = 'Stop'
 # Determine paths
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (-not $SkillsPath) {
-    $SkillsPath = Join-Path (Split-Path -Parent $ScriptDir) 'skills'
+    $SkillsPath = Join-Path (Split-Path -Parent (Split-Path -Parent $ScriptDir)) 'skills'
 }
 
 # Validation results

@@ -11,7 +11,6 @@ This toolkit provides reusable skills that follow the [Agent Skills specificatio
 - Skill-level setup scripts for on-demand dependencies
 - Bundled tool packages inside skills (offline-friendly)
 - Cross-platform support (Windows, Linux, macOS, containers)
-- Future-friendly configuration for private NuGet feeds
 
 ## Quick Start (New Machine / Container)
 
@@ -88,46 +87,48 @@ Search and analyze production logs via SolarWinds Observability API.
 ### wordpress-content-manager
 Manage WordPress blog content (list, search, create, update, delete posts) via the WordPress REST API.
 
-**Use when:** Managing blog content for `blog.gbase.com` or similar WordPress sites configured via profiles.
+**Use when:** Managing WordPress sites configured via profiles.
 
 **Dependencies:** Node.js 16+ and npm (installed on-demand by running the skill setup script)
 
 **Required environment:** `WP_USERNAME`, `WP_APP_PASSWORD`
 
+### git-workflow
+Automated git workflow helpers for common development tasks.
+
+**Use when:** Creating feature branches, cleaning up merged branches, or interactive rebasing.
+
+**Dependencies:** None - uses native git commands.
+
 ## Directory Structure
 
 ```
 agent-skills/
-├── docs/                        # Local reference docs
-│   ├── agentskills-home.md      # Agent Skills overview (upstream copy)
-│   └── developer-guidance.md
-├── init.ps1                     # Windows initialization (single entrypoint)
-├── init.sh                      # Linux/macOS initialization (single entrypoint)
-├── config.json                  # Agent configuration (legacy tool config)
+├── init.ps1                     # Windows initialization
+├── init.sh                      # Linux/macOS initialization
 ├── README.md                    # This file
-├── tools/                       # Legacy bundled tool packages (optional)
-│   └── solarwinds-logs/
-│       └── *.nupkg             # .NET global tool package
-├── scripts/                     # Utility scripts
-│   ├── deploy.ps1              # Skills-only deployment (Windows)
-│   ├── deploy.sh               # Skills-only deployment (Linux/macOS)
-│   ├── validate.ps1            # Skill validation (Windows)
-│   └── validate.sh             # Skill validation (Linux/macOS)
-├── skills/                      # Skill definitions
+├── LICENSE
+├── scripts/                     # Deployment scripts
+│   ├── deploy.ps1
+│   └── deploy.sh
+├── skills/                      # Skill definitions (payload)
 │   ├── git-workflow/
+│   │   ├── SKILL.md
+│   │   └── scripts/
 │   ├── solarwinds-logs/
-│   │   ├── SKILL.md            # Main skill file
-│   │   ├── tools/              # Skill-local tool package(s)
-│   │   ├── scripts/            # Skill setup scripts
+│   │   ├── SKILL.md
+│   │   ├── tools/               # Bundled .nupkg
+│   │   ├── scripts/             # Setup scripts
 │   │   └── references/
-│   │       ├── REFERENCE.md    # Complete CLI reference
-│   │       └── RECIPES.md      # Investigation patterns
 │   └── wordpress-content-manager/
 │       ├── SKILL.md
 │       ├── profiles/
-│       ├── references/
-│       └── scripts/
-└── .gitignore
+│       ├── scripts/
+│       └── references/
+└── .dev/                        # Development infrastructure (not deployed)
+    ├── tests/                   # Container test harness
+    ├── docs/                    # Internal documentation
+    └── scripts/                 # Dev utilities (validate, etc.)
 ```
 
 ## Init Script Options
@@ -148,27 +149,28 @@ agent-skills/
 ./init.sh -d       # Preview without changes
 ```
 
-## Developer Guidance
+## Development
 
-See `docs/developer-guidance.md` for the objective, init behavior, skill authoring checklist, and the self-setup dependency model used in this repo.
+### Validating Skills
+
+```bash
+bash .dev/scripts/validate.sh [skill-name]
+```
+
+### Container Testing
+
+See `.dev/tests/containers/README.md` for the container test harness that validates skill deployment in containerized Claude Code and Codex CLI environments.
 
 ## Contributing
 
 1. Create a new skill following the format above
-2. Validate with `validate.ps1` or `validate.sh`
+2. Validate with `.dev/scripts/validate.sh`
 3. Test with your target agent
 4. Submit a pull request
-
-## Container Test Harness
-
-If you need to validate the toolkit against containerized Claude Code or Codex
-CLI installs, see `tests/containers/README.md` for a separate, optional test
-harness that mounts this repo into a container and runs `init.sh`.
 
 ## Resources
 
 - [Agent Skills Specification](https://agentskills.io/specification)
-- Local reference: `docs/agentskills-home.md` (from https://agentskills.io/home.md)
 - [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)
 - [OpenAI Codex Skills Documentation](https://github.com/openai/codex/blob/main/docs/skills.md)
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
