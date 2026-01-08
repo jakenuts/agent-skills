@@ -87,11 +87,11 @@ Search and analyze production logs via SolarWinds Observability API.
 ### wordpress-content-manager
 Manage WordPress blog content (list, search, create, update, delete posts) via the WordPress REST API.
 
-**Use when:** Managing WordPress sites configured via profiles.
+**Use when:** Managing WordPress blog content.
 
 **Dependencies:** Node.js 16+ and npm (installed on-demand by running the skill setup script)
 
-**Required environment:** `WP_USERNAME`, `WP_APP_PASSWORD`
+**Required environment:** `WP_SITE_URL`, `WP_USERNAME`, `WP_APP_PASSWORD`
 
 ### git-workflow
 Automated git workflow helpers for common development tasks.
@@ -108,9 +108,6 @@ agent-skills/
 ├── init.sh                      # Linux/macOS initialization
 ├── README.md                    # This file
 ├── LICENSE
-├── scripts/                     # Deployment scripts
-│   ├── deploy.ps1
-│   └── deploy.sh
 ├── skills/                      # Skill definitions (payload)
 │   ├── git-workflow/
 │   │   ├── SKILL.md
@@ -122,7 +119,6 @@ agent-skills/
 │   │   └── references/
 │   └── wordpress-content-manager/
 │       ├── SKILL.md
-│       ├── profiles/
 │       ├── scripts/
 │       └── references/
 └── .dev/                        # Development infrastructure (not deployed)
