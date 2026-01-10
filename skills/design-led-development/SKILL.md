@@ -1,9 +1,6 @@
 ---
 name: design-led-development
 description: Build software with elite design principles focusing on user outcomes, trust, accessibility, and performance. Use when creating UI components, designing user flows, writing production code, reviewing code quality, or when the user mentions UX, accessibility, performance, or trust-focused development.
-compatibility: No dependencies required. Works with any frontend framework or vanilla JavaScript/TypeScript.
-metadata:
-  requires-setup: false
 ---
 
 # Design-Led Development
@@ -28,11 +25,11 @@ If you cannot articulate the user outcome in one sentence, do not code it yet.
 ### Clarity Over Cleverness
 
 ```typescript
-// DO: Name for humans reading at 2am
+// ✅ DO: Name for humans reading at 2am
 const userAuthenticationStatus = checkAuth(userId);
 const formattedOrderDate = formatDate(order.createdAt);
 
-// DON'T: Clever but obscure
+// ❌ DON'T: Clever but obscure
 const x = chk(u);
 const d = fmt(o.c);
 ```
@@ -42,9 +39,9 @@ Comments explain *why*, not *what*. Red flag phrases: "just", "simply", "obvious
 ### Explicit Error Handling
 
 ```typescript
-// DO: Error states as return types
-type Result<T> =
-  | { success: true; data: T }
+// ✅ DO: Error states as return types
+type Result<T> = 
+  | { success: true; data: T } 
   | { success: false; error: UserFacingError };
 
 async function fetchUser(id: string): Promise<Result<User>> {
@@ -52,9 +49,9 @@ async function fetchUser(id: string): Promise<Result<User>> {
     const user = await api.getUser(id);
     return { success: true, data: user };
   } catch (error) {
-    return {
-      success: false,
-      error: {
+    return { 
+      success: false, 
+      error: { 
         message: "Unable to load user profile",
         action: "Please try again or contact support"
       }
@@ -62,16 +59,16 @@ async function fetchUser(id: string): Promise<Result<User>> {
   }
 }
 
-// NEVER: Generic errors or silent failures
+// ❌ NEVER: Generic errors or silent failures
 throw new Error("Something went wrong");
 ```
 
 ### Network Resilience
 
 ```typescript
-// DO: Exponential backoff with jitter
+// ✅ DO: Exponential backoff with jitter
 const retryWithBackoff = async <T>(
-  fn: () => Promise<T>,
+  fn: () => Promise<T>, 
   maxRetries = 3
 ): Promise<T> => {
   for (let i = 0; i < maxRetries; i++) {
@@ -86,7 +83,7 @@ const retryWithBackoff = async <T>(
   throw new Error('Max retries exceeded');
 };
 
-// DO: Timeout promises
+// ✅ DO: Timeout promises
 const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> =>
   Promise.race([
     promise,
@@ -114,15 +111,15 @@ Treat performance regressions as P0 bugs. Profile on low-end devices.
 Every interactive component MUST handle all states:
 
 ```
-- Default (idle)
-- Hover (pointer devices)
-- Active/pressed
-- Focus (keyboard navigation)
-- Disabled (with explanation why)
-- Loading (with progress indication)
-- Error (with recovery action)
-- Success (with next step)
-- Empty (with helpful onboarding)
+✅ Default (idle)
+✅ Hover (pointer devices)
+✅ Active/pressed
+✅ Focus (keyboard navigation)
+✅ Disabled (with explanation why)
+✅ Loading (with progress indication)
+✅ Error (with recovery action)
+✅ Success (with next step)
+✅ Empty (with helpful onboarding)
 ```
 
 ## Visual System
@@ -167,13 +164,13 @@ Rules:
 
 Non-negotiable checklist:
 
-- Semantic HTML with ARIA labels
-- Keyboard navigation for all interactions
-- Color contrast: 4.5:1 minimum (7:1 for body text)
-- Touch targets: 44x44pt minimum
-- Screen reader tested
-- Respects `prefers-reduced-motion`
-- Respects `prefers-color-scheme`
+- [ ] Semantic HTML with ARIA labels
+- [ ] Keyboard navigation for all interactions
+- [ ] Color contrast: 4.5:1 minimum (7:1 for body text)
+- [ ] Touch targets: 44x44pt minimum
+- [ ] Screen reader tested
+- [ ] Respects `prefers-reduced-motion`
+- [ ] Respects `prefers-color-scheme`
 
 ## Trust Architecture
 
@@ -188,14 +185,14 @@ Every feature must answer:
 ### Privacy Defaults
 
 ```typescript
-// DO: Default private, opt-in sharing
+// ✅ DO: Default private, opt-in sharing
 const defaultSettings = {
   shareAnalytics: false,
   publicProfile: false,
   dataRetention: 'minimum'
 };
 
-// DO: Redact PII in logs
+// ✅ DO: Redact PII in logs
 logger.info('user_action', {
   action: 'profile_update',
   userId: hashUserId(user.id), // Never raw PII
@@ -230,60 +227,51 @@ Never blame the user in error messages.
 ### Code Anti-Patterns (Never Do)
 
 ```
-- Magic numbers without constants
-- Functions over 50 lines
-- God objects over 300 lines
-- Mutable global state
-- Side effects not in function name
-- Catching errors without handling
-- Copy-pasted code
+❌ Magic numbers without constants
+❌ Functions over 50 lines
+❌ God objects over 300 lines
+❌ Mutable global state
+❌ Side effects not in function name
+❌ Catching errors without handling
+❌ Copy-pasted code
 ```
 
 ### UX Anti-Patterns (Never Do)
 
 ```
-- Forced account creation before value
-- Dark patterns (hidden costs, trick questions)
-- Generic error messages ("Error 500")
-- Modal dialogs for everything
-- Destroying data without confirmation
-- Disabling paste in password fields
-- Auto-playing video/audio
-- Infinite scroll without pagination option
+❌ Forced account creation before value
+❌ Dark patterns (hidden costs, trick questions)
+❌ Generic error messages ("Error 500")
+❌ Modal dialogs for everything
+❌ Destroying data without confirmation
+❌ Disabling paste in password fields
+❌ Auto-playing video/audio
+❌ Infinite scroll without pagination option
 ```
 
 ## Security Checklist
 
-- Sanitize all user input (XSS prevention)
-- Parameterized queries (SQL injection prevention)
-- Rate limit all endpoints
-- CSRF tokens for state-changing operations
-- Encrypt PII at rest (AES-256)
-- TLS 1.3 for all network traffic
-- Hash passwords with bcrypt/Argon2
-- HttpOnly, Secure, SameSite cookies
+- [ ] Sanitize all user input (XSS prevention)
+- [ ] Parameterized queries (SQL injection prevention)
+- [ ] Rate limit all endpoints
+- [ ] CSRF tokens for state-changing operations
+- [ ] Encrypt PII at rest (AES-256)
+- [ ] TLS 1.3 for all network traffic
+- [ ] Hash passwords with bcrypt/Argon2
+- [ ] HttpOnly, Secure, SameSite cookies
 
 ## Quality Gates (Before Ship)
 
-- Lighthouse score > 90
-- Zero critical/high security vulnerabilities
-- Core flows work offline or degrade gracefully
-- Keyboard navigation works
-- Screen reader tested (VoiceOver + NVDA)
-- Error states tested
-- Load tested at 2x expected peak
-- Mobile tested on real devices
-- Privacy review completed
-- Rollback procedure documented
-
-## Reference Documentation
-
-For detailed patterns and examples, see:
-
-- [COLOR_TOKENS.md](references/COLOR_TOKENS.md) - Semantic color token system
-- [COMPONENT_PATTERNS.md](references/COMPONENT_PATTERNS.md) - UI component patterns
-- [DOCUMENTATION.md](references/DOCUMENTATION.md) - Code documentation standards
-- [TESTING.md](references/TESTING.md) - Testing strategy guide
+- [ ] Lighthouse score > 90
+- [ ] Zero critical/high security vulnerabilities
+- [ ] Core flows work offline or degrade gracefully
+- [ ] Keyboard navigation works
+- [ ] Screen reader tested (VoiceOver + NVDA)
+- [ ] Error states tested
+- [ ] Load tested at 2x expected peak
+- [ ] Mobile tested on real devices
+- [ ] Privacy review completed
+- [ ] Rollback procedure documented
 
 ## Final Mandate
 
