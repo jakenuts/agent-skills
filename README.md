@@ -1,15 +1,18 @@
 # Agent Skills Toolkit
 
-A unified collection of Agent Skills compatible with both **Claude Code** and **OpenAI Codex CLI**. Skills are modular capabilities that extend AI agents with specialized knowledge and workflows.
+A unified collection of Agent Skills and Expert Agent definitions compatible with both **Claude Code** and **OpenAI Codex CLI**. This toolkit provides modular capabilities that extend AI agents with specialized knowledge, workflows, and expert sub-agents.
 
 ## Overview
 
-This toolkit provides reusable skills that follow the [Agent Skills specification](https://agentskills.io/specification) - a simple, open format for giving agents new capabilities and expertise. Skills are discovered automatically by compatible agents and activated based on context.
+This toolkit provides:
+- **Skills**: Reusable capabilities following the [Agent Skills specification](https://agentskills.io/specification) - activated based on context
+- **Expert Agents**: Specialized sub-agent definitions that can be invoked via the Task tool for complex, multi-step operations
 
 **Key Features:**
 - Fast, deploy-only initialization that detects installed agents
 - Skill-level setup scripts for on-demand dependencies
 - Bundled tool packages inside skills (offline-friendly)
+- Hierarchical expert agent organization (core, orchestrators, specialized, universal)
 - Cross-platform support (Windows, Linux, macOS, containers)
 
 ## Quick Start (New Machine / Container)
@@ -58,20 +61,29 @@ RUN chmod +x init.sh && ./init.sh
 
 1. **Detects installed agents** - Looks for Claude Code and/or Codex CLI
 2. **Deploys skills** - Copies skill definitions to the detected agent skill directories
-3. **Optionally overwrites** - Use `--force` to replace existing skills
+3. **Deploys expert agents** - Copies agent definition files to the agents directory (preserving hierarchical structure)
+4. **Optionally overwrites** - Use `--force` to replace existing skills and agents
 
 ### Skill-Specific Configuration
 
 Each skill documents its required environment variables, setup scripts, and validation steps in its `SKILL.md`.
 
+### Expert Agent Organization
+
+Expert agents are organized hierarchically:
+- **core**: General-purpose agents (code-archaeologist, code-reviewer, performance-optimizer)
+- **orchestrators**: High-level coordinators (dotnet-solution-architect, modern-frontend-architect, tech-lead-orchestrator)
+- **specialized**: Technology-specific experts (dotnet, react, vue, database, mapping, etc.)
+- **universal**: Framework-agnostic helpers (api-architect, backend-developer, frontend-developer)
+
 ## Supported Platforms
 
-| Platform | Skills Location | Status |
-|----------|-----------------|--------|
-| Claude Code | `~/.claude/skills/` or `.claude/skills/` | Supported |
-| Codex CLI | `~/.codex/skills/` | Experimental |
-| Claude.ai | Upload via web interface | Supported |
-| Claude API | Upload via API | Supported |
+| Platform | Skills Location | Agents Location | Status |
+|----------|-----------------|-----------------|--------|
+| Claude Code | `~/.claude/skills/` | `~/.claude/agents/` | Supported |
+| Codex CLI | `~/.codex/skills/` | `~/.codex/agents/` | Experimental |
+| Claude.ai | Upload via web interface | N/A | Skills only |
+| Claude API | Upload via API | N/A | Skills only |
 
 ## Available Skills
 
@@ -121,6 +133,25 @@ agent-skills/
 │       ├── SKILL.md
 │       ├── scripts/
 │       └── references/
+├── agents/                      # Expert agent definitions (payload)
+│   ├── core/                    # General-purpose agents
+│   │   ├── code-archaeologist.md
+│   │   ├── code-reviewer.md
+│   │   └── performance-optimizer.md
+│   ├── orchestrators/           # High-level coordinators
+│   │   ├── dotnet-solution-architect.md
+│   │   ├── modern-frontend-architect.md
+│   │   └── tech-lead-orchestrator.md
+│   ├── specialized/             # Technology-specific experts
+│   │   ├── dotnet/
+│   │   ├── react/
+│   │   ├── vue/
+│   │   ├── database/
+│   │   └── mapping/
+│   └── universal/               # Framework-agnostic helpers
+│       ├── api-architect.md
+│       ├── backend-developer.md
+│       └── frontend-developer.md
 └── .dev/                        # Development infrastructure (not deployed)
     ├── tests/                   # Container test harness
     ├── docs/                    # Internal documentation
@@ -164,10 +195,25 @@ See `.dev/tests/containers/README.md` for the container test harness that valida
 3. Test with your target agent
 4. Submit a pull request
 
+## Context Window Management
+
+**Expert agents use progressive disclosure** to minimize context usage:
+- Agent definitions contain concise YAML frontmatter with name, description, and examples
+- Full agent prompts are only loaded when explicitly invoked via the Task tool
+- Hierarchical organization helps Claude Code select the right specialist without loading all definitions
+- Similar to skills, this "lazy loading" approach prevents context window overload
+
+**Best Practices:**
+- Agent definitions are indexed by name and description only
+- When you invoke an agent via `Task(subagent_type="agent-name")`, only that agent's full definition is loaded
+- The hierarchical structure (core/orchestrators/specialized/universal) provides semantic grouping without impacting context
+
 ## Resources
 
 - [Agent Skills Specification](https://agentskills.io/specification)
 - [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)
+- [Claude Code Sub-Agents Best Practices](https://www.pubnub.com/blog/best-practices-for-claude-code-sub-agents/)
+- [Rosmur's Claude Code Best Practices](https://rosmur.github.io/claudecode-best-practices/)
 - [OpenAI Codex Skills Documentation](https://github.com/openai/codex/blob/main/docs/skills.md)
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
 

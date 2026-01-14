@@ -38,23 +38,31 @@ function Write-DryRun { param($msg) Write-Host "   [DRY RUN] $msg" -ForegroundCo
 # Script paths
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SkillsPath = Join-Path $ScriptDir 'skills'
+$AgentsPath = Join-Path $ScriptDir 'agents'
 
 # Target definitions
 $Targets = @{
     'claude' = @{
-        'path' = Join-Path $env:USERPROFILE '.claude\skills'
+        'skills_path' = Join-Path $env:USERPROFILE '.claude\skills'
+        'agents_path' = Join-Path $env:USERPROFILE '.claude\agents'
         'name' = 'Claude Code'
     }
     'codex' = @{
-        'path' = Join-Path $env:USERPROFILE '.codex\skills'
+        'skills_path' = Join-Path $env:USERPROFILE '.codex\skills'
+        'agents_path' = Join-Path $env:USERPROFILE '.codex\agents'
         'name' = 'Codex CLI'
     }
 }
 
-# Validate skills directory
+# Validate source directories
 if (-not (Test-Path $SkillsPath)) {
     Write-Err "Skills directory not found: $SkillsPath"
     exit 1
+}
+
+$HasAgents = Test-Path $AgentsPath
+if (-not $HasAgents) {
+    Write-Warn "Agents directory not found: $AgentsPath (skipping agents deployment)"
 }
 
 # Detect installed agents
@@ -83,21 +91,37 @@ $Skills = Get-ChildItem -Path $SkillsPath -Directory | Where-Object {
 
 if ($Skills.Count -eq 0) {
     Write-Warn "No valid skills found in $SkillsPath"
+}
+
+# Find agent definition files (*.md in agents folder and subdirectories)
+$Agents = @()
+if ($HasAgents) {
+    $Agents = Get-ChildItem -Path $AgentsPath -Filter "*.md" -Recurse
+}
+
+if ($Skills.Count -eq 0 -and $Agents.Count -eq 0) {
+    Write-Warn "No skills or agents found to deploy"
     exit 0
 }
 
-Write-Step "Found $($Skills.Count) skill(s) to deploy"
-foreach ($skill in $Skills) {
-    Write-Info "- $($skill.Name)"
+Write-Step "Found content to deploy"
+if ($Skills.Count -gt 0) {
+    Write-Info "$($Skills.Count) skill(s):"
+    foreach ($skill in $Skills) {
+        Write-Info "  - $($skill.Name)"
+    }
+}
+if ($Agents.Count -gt 0) {
+    Write-Info "$($Agents.Count) agent definition(s)"
 }
 
 Write-Info ""
 Write-Info "Detected targets: $($DetectedTargets -join ', ')"
 
-# Deploy function
+# Deploy functions
 function Deploy-Skill {
     param($SkillName, $SkillSource, $TargetPath)
-    
+
     $skillDest = Join-Path $TargetPath $SkillName
 
     if (Test-Path $skillDest) {
@@ -122,26 +146,79 @@ function Deploy-Skill {
     }
 }
 
+function Deploy-Agents {
+    param($AgentsSource, $TargetPath)
+
+    if ($DryRun) {
+        Write-DryRun "Would sync agents directory structure"
+    } else {
+        if (-not (Test-Path $TargetPath)) {
+            New-Item -ItemType Directory -Path $TargetPath -Force | Out-Null
+        }
+
+        # Copy entire agents directory structure, preserving hierarchy
+        $agentFiles = Get-ChildItem -Path $AgentsSource -Filter "*.md" -Recurse
+        $deployed = 0
+        foreach ($agentFile in $agentFiles) {
+            # Calculate relative path from agents source
+            $relativePath = $agentFile.FullName.Substring($AgentsSource.Length + 1)
+            $destPath = Join-Path $TargetPath $relativePath
+            $destDir = Split-Path -Parent $destPath
+
+            # Create destination directory if needed
+            if (-not (Test-Path $destDir)) {
+                New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+            }
+
+            # Copy or update the file
+            if ((Test-Path $destPath) -and -not $Force) {
+                # Skip existing files unless -Force is specified
+                continue
+            }
+
+            Copy-Item -Path $agentFile.FullName -Destination $destPath -Force
+            $deployed++
+        }
+
+        if ($deployed -gt 0) {
+            Write-Ok "Deployed $deployed agent definition(s)"
+        } else {
+            Write-Info "All agent definitions up to date"
+        }
+    }
+}
+
 # Deploy to each target
 foreach ($targetKey in $DetectedTargets) {
     $targetInfo = $Targets[$targetKey]
-    $targetPath = $targetInfo['path']
+    $skillsTargetPath = $targetInfo['skills_path']
+    $agentsTargetPath = $targetInfo['agents_path']
     $targetName = $targetInfo['name']
 
     Write-Step "Deploying to $targetName"
-    Write-Info "Path: $targetPath"
 
-    if ($DryRun) {
-        Write-DryRun "Would create directory: $targetPath"
-    } else {
-        if (-not (Test-Path $targetPath)) {
-            New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
-            Write-Ok "Created directory: $targetPath"
+    # Deploy skills
+    if ($Skills.Count -gt 0) {
+        Write-Info "Skills path: $skillsTargetPath"
+
+        if ($DryRun) {
+            Write-DryRun "Would create directory: $skillsTargetPath"
+        } else {
+            if (-not (Test-Path $skillsTargetPath)) {
+                New-Item -ItemType Directory -Path $skillsTargetPath -Force | Out-Null
+                Write-Ok "Created directory: $skillsTargetPath"
+            }
+        }
+
+        foreach ($skill in $Skills) {
+            Deploy-Skill -SkillName $skill.Name -SkillSource $skill.FullName -TargetPath $skillsTargetPath
         }
     }
 
-    foreach ($skill in $Skills) {
-        Deploy-Skill -SkillName $skill.Name -SkillSource $skill.FullName -TargetPath $targetPath
+    # Deploy agents
+    if ($HasAgents) {
+        Write-Info "Agents path: $agentsTargetPath"
+        Deploy-Agents -AgentsSource $AgentsPath -TargetPath $agentsTargetPath
     }
 }
 
