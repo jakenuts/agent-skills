@@ -1,0 +1,75 @@
+{
+  "description": "Common firewall rule configurations",
+  "rules": {
+    "block_bad_bots": {
+      "action": "block",
+      "filter": {
+        "expression": "(http.user_agent contains \"SemrushBot\") or (http.user_agent contains \"AhrefsBot\") or (http.user_agent contains \"MJ12bot\") or (http.user_agent contains \"DotBot\")"
+      },
+      "description": "Block known bad bots"
+    },
+    "block_empty_user_agent": {
+      "action": "challenge",
+      "filter": {
+        "expression": "(http.user_agent eq \"\")"
+      },
+      "description": "Challenge empty user agents"
+    },
+    "protect_admin": {
+      "action": "challenge",
+      "filter": {
+        "expression": "(http.request.uri.path contains \"/admin\") or (http.request.uri.path contains \"/wp-admin\") or (http.request.uri.path contains \"/wp-login\")"
+      },
+      "description": "Challenge admin page access"
+    },
+    "allow_known_ips": {
+      "action": "allow",
+      "filter": {
+        "expression": "(ip.src in {192.0.2.0/24 10.0.0.0/8})"
+      },
+      "description": "Allow known IP ranges"
+    },
+    "block_countries": {
+      "action": "block",
+      "filter": {
+        "expression": "(ip.geoip.country in {\"CN\" \"RU\" \"KP\"})"
+      },
+      "description": "Block specific countries"
+    },
+    "rate_limit_api": {
+      "action": "challenge",
+      "filter": {
+        "expression": "(http.request.uri.path contains \"/api/\") and (not http.request.headers[\"x-api-key\"])"
+      },
+      "description": "Challenge API requests without key"
+    },
+    "block_tor_exit_nodes": {
+      "action": "challenge",
+      "filter": {
+        "expression": "(cf.threat_score gt 10)"
+      },
+      "description": "Challenge high threat score IPs"
+    },
+    "protect_login": {
+      "action": "managed_challenge",
+      "filter": {
+        "expression": "(http.request.uri.path eq \"/login\") and (http.request.method eq \"POST\")"
+      },
+      "description": "Challenge login POST requests"
+    },
+    "block_sql_injection": {
+      "action": "block",
+      "filter": {
+        "expression": "(http.request.uri.query contains \"UNION\") or (http.request.uri.query contains \"SELECT\") or (http.request.uri.query contains \"DROP\")"
+      },
+      "description": "Block common SQL injection patterns"
+    },
+    "allow_search_engines": {
+      "action": "allow",
+      "filter": {
+        "expression": "(cf.client.bot) and (http.user_agent contains \"Googlebot\" or http.user_agent contains \"Bingbot\")"
+      },
+      "description": "Allow verified search engine bots"
+    }
+  }
+}

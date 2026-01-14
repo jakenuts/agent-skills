@@ -1,6 +1,6 @@
 ---
 name: wordpress-content-manager
-description: WordPress content management via REST API for listing, searching, viewing, creating, updating, and deleting posts (including draft/scheduled/published) with tags and categories. Use when managing WordPress blog content. Requires Node.js and WordPress REST API credentials.
+description: WordPress content management via REST API for managing posts. Requires Node.js and WordPress REST API credentials.
 compatibility: Requires Node.js 16+ and npm. Uses WP_USERNAME and WP_APP_PASSWORD (Application Password) for authentication.
 metadata:
   requires-setup: true

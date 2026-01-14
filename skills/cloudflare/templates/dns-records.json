@@ -1,0 +1,97 @@
+{
+  "description": "Common DNS record configurations",
+  "records": {
+    "a_record": {
+      "type": "A",
+      "name": "subdomain",
+      "content": "192.0.2.1",
+      "ttl": 3600,
+      "proxied": true
+    },
+    "aaaa_record": {
+      "type": "AAAA",
+      "name": "subdomain",
+      "content": "2001:db8::1",
+      "ttl": 3600,
+      "proxied": true
+    },
+    "cname_record": {
+      "type": "CNAME",
+      "name": "www",
+      "content": "example.com",
+      "ttl": 3600,
+      "proxied": true
+    },
+    "mx_records": [
+      {
+        "type": "MX",
+        "name": "@",
+        "content": "mail.example.com",
+        "ttl": 3600,
+        "priority": 10
+      },
+      {
+        "type": "MX",
+        "name": "@",
+        "content": "mail2.example.com",
+        "ttl": 3600,
+        "priority": 20
+      }
+    ],
+    "txt_spf": {
+      "type": "TXT",
+      "name": "@",
+      "content": "v=spf1 include:_spf.google.com ~all",
+      "ttl": 3600
+    },
+    "txt_dkim": {
+      "type": "TXT",
+      "name": "google._domainkey",
+      "content": "v=DKIM1; k=rsa; p=YOUR_PUBLIC_KEY",
+      "ttl": 3600
+    },
+    "txt_dmarc": {
+      "type": "TXT",
+      "name": "_dmarc",
+      "content": "v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com",
+      "ttl": 3600
+    },
+    "txt_verification": {
+      "type": "TXT",
+      "name": "@",
+      "content": "google-site-verification=YOUR_CODE",
+      "ttl": 3600
+    },
+    "srv_record": {
+      "type": "SRV",
+      "name": "_sip._tcp",
+      "content": "sipserver.example.com",
+      "ttl": 3600,
+      "priority": 10,
+      "data": {
+        "weight": 60,
+        "port": 5060,
+        "target": "sipserver.example.com"
+      }
+    },
+    "caa_record": {
+      "type": "CAA",
+      "name": "@",
+      "content": "0 issue \"letsencrypt.org\"",
+      "ttl": 3600
+    }
+  },
+  "google_workspace": [
+    {"type": "MX", "name": "@", "content": "aspmx.l.google.com", "priority": 1, "ttl": 3600},
+    {"type": "MX", "name": "@", "content": "alt1.aspmx.l.google.com", "priority": 5, "ttl": 3600},
+    {"type": "MX", "name": "@", "content": "alt2.aspmx.l.google.com", "priority": 5, "ttl": 3600},
+    {"type": "MX", "name": "@", "content": "alt3.aspmx.l.google.com", "priority": 10, "ttl": 3600},
+    {"type": "MX", "name": "@", "content": "alt4.aspmx.l.google.com", "priority": 10, "ttl": 3600},
+    {"type": "TXT", "name": "@", "content": "v=spf1 include:_spf.google.com ~all", "ttl": 3600}
+  ],
+  "microsoft_365": [
+    {"type": "MX", "name": "@", "content": "example-com.mail.protection.outlook.com", "priority": 0, "ttl": 3600},
+    {"type": "TXT", "name": "@", "content": "v=spf1 include:spf.protection.outlook.com -all", "ttl": 3600},
+    {"type": "CNAME", "name": "autodiscover", "content": "autodiscover.outlook.com", "ttl": 3600}
+  ]
+}

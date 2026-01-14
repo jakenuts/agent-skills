@@ -1,0 +1,136 @@
+{
+  "description": "Common page rule configurations",
+  "rules": {
+    "cache_static_assets": {
+      "targets": [
+        {
+          "target": "url",
+          "constraint": {
+            "operator": "matches",
+            "value": "*example.com/static/*"
+          }
+        }
+      ],
+      "actions": [
+        {"id": "cache_level", "value": "cache_everything"},
+        {"id": "edge_cache_ttl", "value": 2592000},
+        {"id": "browser_cache_ttl", "value": 86400}
+      ],
+      "priority": 1,
+      "status": "active"
+    },
+    "bypass_cache_api": {
+      "targets": [
+        {
+          "target": "url",
+          "constraint": {
+            "operator": "matches",
+            "value": "*example.com/api/*"
+          }
+        }
+      ],
+      "actions": [
+        {"id": "cache_level", "value": "bypass"},
+        {"id": "disable_apps"}
+      ],
+      "priority": 2,
+      "status": "active"
+    },
+    "redirect_www": {
+      "targets": [
+        {
+          "target": "url",
+          "constraint": {
+            "operator": "matches",
+            "value": "www.example.com/*"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "id": "forwarding_url",
+          "value": {
+            "url": "https://example.com/$1",
+            "status_code": 301
+          }
+        }
+      ],
+      "priority": 1,
+      "status": "active"
+    },
+    "force_https": {
+      "targets": [
+        {
+          "target": "url",
+          "constraint": {
+            "operator": "matches",
+            "value": "http://*example.com/*"
+          }
+        }
+      ],
+      "actions": [
+        {"id": "always_use_https"}
+      ],
+      "priority": 1,
+      "status": "active"
+    },
+    "cache_images": {
+      "targets": [
+        {
+          "target": "url",
+          "constraint": {
+            "operator": "matches",
+            "value": "*example.com/*.jpg"
+          }
+        }
+      ],
+      "actions": [
+        {"id": "cache_level", "value": "cache_everything"},
+        {"id": "edge_cache_ttl", "value": 604800},
+        {"id": "polish", "value": "lossless"}
+      ],
+      "priority": 3,
+      "status": "active"
+    },
+    "security_headers": {
+      "targets": [
+        {
+          "target": "url",
+          "constraint": {
+            "operator": "matches",
+            "value": "*example.com/*"
+          }
+        }
+      ],
+      "actions": [
+        {"id": "ssl", "value": "strict"},
+        {"id": "always_use_https"},
+        {"id": "security_level", "value": "high"}
+      ],
+      "priority": 10,
+      "status": "active"
+    },
+    "spa_routing": {
+      "targets": [
+        {
+          "target": "url",
+          "constraint": {
+            "operator": "matches",
+            "value": "*example.com/app/*"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "id": "forwarding_url",
+          "value": {
+            "url": "https://example.com/app/index.html",
+            "status_code": 200
+          }
+        }
+      ],
+      "priority": 5,
+      "status": "active"
+    }
+  }
+}
