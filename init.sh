@@ -203,7 +203,7 @@ deploy_agents() {
         fi
 
         cp "$agent_file" "$dest_path"
-        ((deployed++))
+        ((++deployed))
     done < <(find "$agents_source" -name "*.md" -type f -print0)
 
     if [[ $deployed -gt 0 ]]; then
