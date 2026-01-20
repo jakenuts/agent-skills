@@ -107,23 +107,73 @@ dotnet tool install --global DealerVision.SolarWindsLogSearch --version 2.4.0 --
 logs --help
 ```
 
+## ⚠️ Critical: Prefer Simple Searches (No Time Arguments)
+
+**The SolarWinds/Papertrail API is finicky with time ranges and often skips recent entries when time arguments are used.** The `logs` tool is designed to start from the most recent entries and page backward through time automatically until a predefined limit (typically 24 hours worth of data).
+
+### Default Search Pattern
+
+**Always prefer simple keyword searches without time arguments:**
+
+```bash
+# ✅ RECOMMENDED - Simple searches that capture current entries
+logs 'error'
+logs 'exception'
+logs 'timeout'
+logs 'DbUpdateException'
+
+# ✅ GOOD - Add filters, but avoid time arguments
+logs 'error' --severity ERROR
+logs 'exception' --program webhook-api
+```
+
+### Why Avoid Time Arguments?
+
+When you use `--time-range`, `--start-time`, or `--end-time`, the API may return a subset of entries that **misses vital current/recent log entries**. This is a known quirk of the underlying Papertrail API.
+
+```bash
+# ⚠️ AVOID - Time arguments can miss recent entries
+logs "error" --time-range 1h      # May miss errors from the last few minutes
+logs "error" --time-range 24h     # May skip entries that just happened
+```
+
+### How to Handle User Requests with Time References
+
+When a user asks for something like "errors from today" or "logs from the last hour":
+
+1. **Default to simple search**: Run `logs 'error'` without time arguments
+2. **Filter results after retrieval**: The agent can filter out older entries from the results
+3. **Only use time arguments if the user explicitly wants to exclude current/recent results**
+
+**Example interpretations:**
+- "Search logs for errors from today" → `logs 'error' OR 'exception'` (filter results yourself)
+- "Find exceptions in the last 4 hours" → `logs 'exception'` (filter results yourself)
+- "Show me errors, but only from yesterday, not today" → Time arguments are appropriate here
+
+### When Time Arguments Are Appropriate
+
+Only use time arguments when the user **explicitly** wants to:
+- Exclude current/recent results
+- Look at a specific historical window (e.g., "what happened last Tuesday between 2-4pm")
+- Investigate a known past incident with specific timestamps
+
 ## Quick Commands
 
 ```bash
-# Search for errors
-logs "error" --time-range 1h
+# Search for errors (recommended - no time arguments)
+logs 'error'
 
 # Find specific exceptions
-logs "DbUpdateException" --severity ERROR --limit 10
+logs 'DbUpdateException' --severity ERROR --limit 10
 
-# Filter by service
-logs "timeout" --program webhook-api --time-range 4h
+# Filter by service (still no time arguments)
+logs 'timeout' --program webhook-api
 
 # Get full details for a specific log entry
 logs --id 1901790063029837827 --with-data
 
 # Export large result sets to file
-logs "exception" --time-range 24h --output-file results.json
+logs 'exception' --output-file results.json
 ```
 
 ## Key Options
