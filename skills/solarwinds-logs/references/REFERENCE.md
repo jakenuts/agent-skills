@@ -32,10 +32,12 @@ Structured flags automatically inject query tokens:
 |--------|-------|-------------|---------|
 | `query` | - | Search query (positional argument) | - |
 | `--limit` | `-l` | Maximum results (1-50000) | 1000 |
-| `--time-range` | `-t` | Time window: 1h, 4h, 12h, 24h, 2d, 7d, 30d | all logs |
-| `--start-time` | `--from` | Start time (ISO 8601) | - |
-| `--end-time` | `--to` | End time (ISO 8601) | - |
+| `--time-range` | `-t` | Time window: 1h, 4h, 12h, 24h, 2d, 7d, 30d (⚠️ see warning below) | all logs |
+| `--start-time` | `--from` | Start time (ISO 8601) (⚠️ see warning below) | - |
+| `--end-time` | `--to` | End time (ISO 8601) (⚠️ see warning below) | - |
 | `--continuation-token` | `-c` | Resume from previous response | - |
+
+> **⚠️ Time Argument Warning:** The SolarWinds/Papertrail API is finicky with time ranges and often **skips recent/current entries** when time arguments are used. The `logs` tool is designed to start from the most recent entries and page backward automatically. **Prefer simple searches without time arguments** (e.g., `logs 'error'`) and filter results afterward. Only use time arguments when you explicitly need to exclude current results or investigate a specific historical window. See SKILL.md for detailed guidance.
 
 ### Filters
 | Option | Description |
@@ -157,11 +159,13 @@ When running as MCP server, two tools are exposed:
 ### solarwinds.logs.search
 Search logs with optional filters and pagination.
 
+> **⚠️ Important:** Prefer simple searches without `timeRange`, `startTime`, or `endTime` parameters. The API often skips recent entries when time arguments are used. Run simple queries like `query: "error"` and filter results afterward. Only use time parameters when explicitly excluding current results or investigating a specific historical window.
+
 Parameters:
 - `query`: Search query
 - `limit`: Max results
-- `timeRange`: Time window (1h, 24h, 7d, etc.)
-- `startTime`, `endTime`: Specific time window
+- `timeRange`: Time window (1h, 24h, 7d, etc.) — ⚠️ avoid unless excluding recent results
+- `startTime`, `endTime`: Specific time window — ⚠️ avoid unless excluding recent results
 - `continuationToken`: For pagination
 - `includeData`: Include structured payload (default: false)
 - `includeMessage`: Include message text (default: true)
