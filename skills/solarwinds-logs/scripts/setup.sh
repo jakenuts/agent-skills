@@ -7,47 +7,21 @@ PACKAGE_ID="DealerVision.SolarWindsLogSearch"
 VERSION="2.4.0"
 COMMAND="logs"
 DOTNET_CHANNEL="10.0"
-DOTNET_INSTALL_DIR="$HOME/.dotnet"
-
-export DOTNET_ROOT="$DOTNET_INSTALL_DIR"
-export DOTNET_ROOT_X64="$DOTNET_INSTALL_DIR"
-export PATH="$DOTNET_INSTALL_DIR:$DOTNET_INSTALL_DIR/tools:$PATH"
 
 step() { echo ""; echo ">> $1"; }
 ok() { echo "   OK: $1"; }
 warn() { echo "   WARN: $1"; }
 err() { echo "   ERROR: $1" >&2; }
 
-ensure_dotnet() {
-    if command -v dotnet >/dev/null 2>&1; then
-        local version
-        version="$(dotnet --version 2>/dev/null || echo "0.0.0")"
-        local major="${version%%.*}"
-        if [[ "$major" -ge 10 ]]; then
-            ok ".NET SDK $version detected"
-            return 0
-        fi
-        warn ".NET SDK $version found, but 10.0+ is required"
-    else
-        warn ".NET SDK not found"
-    fi
+SHARED_DOTNET_ENV="$SKILL_DIR/../_shared/scripts/dotnet-env.sh"
+if [[ ! -f "$SHARED_DOTNET_ENV" ]]; then
+    err "Shared dotnet helper not found: $SHARED_DOTNET_ENV"
+    exit 2
+fi
 
-    step "Installing .NET SDK $DOTNET_CHANNEL"
-
-    if ! command -v curl >/dev/null 2>&1; then
-        err "curl is required to install .NET. Install curl and rerun this script."
-        exit 2
-    fi
-
-    local installer
-    installer="$(mktemp)"
-    curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$installer"
-    bash "$installer" --channel "$DOTNET_CHANNEL" --install-dir "$DOTNET_INSTALL_DIR"
-    rm -f "$installer"
-
-    ok ".NET SDK installed to $DOTNET_INSTALL_DIR"
-    warn "Add $DOTNET_INSTALL_DIR and $DOTNET_INSTALL_DIR/tools to your PATH for future shells"
-}
+# shellcheck source=../../_shared/scripts/dotnet-env.sh
+source "$SHARED_DOTNET_ENV"
+dotnet_env
 
 install_tool() {
     if [[ ! -d "$TOOLS_DIR" ]]; then
