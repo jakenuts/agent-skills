@@ -9,6 +9,10 @@ COMMAND="logs"
 DOTNET_CHANNEL="10.0"
 DOTNET_INSTALL_DIR="$HOME/.dotnet"
 
+export DOTNET_ROOT="$DOTNET_INSTALL_DIR"
+export DOTNET_ROOT_X64="$DOTNET_INSTALL_DIR"
+export PATH="$DOTNET_INSTALL_DIR:$DOTNET_INSTALL_DIR/tools:$PATH"
+
 step() { echo ""; echo ">> $1"; }
 ok() { echo "   OK: $1"; }
 warn() { echo "   WARN: $1"; }
@@ -41,7 +45,6 @@ ensure_dotnet() {
     bash "$installer" --channel "$DOTNET_CHANNEL" --install-dir "$DOTNET_INSTALL_DIR"
     rm -f "$installer"
 
-    export PATH="$DOTNET_INSTALL_DIR:$DOTNET_INSTALL_DIR/tools:$PATH"
     ok ".NET SDK installed to $DOTNET_INSTALL_DIR"
     warn "Add $DOTNET_INSTALL_DIR and $DOTNET_INSTALL_DIR/tools to your PATH for future shells"
 }
