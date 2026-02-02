@@ -22,7 +22,6 @@ if (-not (Test-Path $sharedDotnet)) {
 }
 
 . $sharedDotnet
-Set-DotnetEnv
 
 function Install-Tool {
     if (-not (Test-Path $toolsDir)) {

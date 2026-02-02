@@ -12,6 +12,54 @@ dotnet_env() {
   export PATH="$install_dir:$install_dir/tools:$PATH"
 }
 
+_dotnet_should_persist() {
+  case "${DOTNET_PERSIST_PATH:-1}" in
+    0|false|False|FALSE|no|No|NO)
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
+dotnet_env_persist() {
+  local install_dir="${DOTNET_INSTALL_DIR:-"$HOME/.dotnet"}"
+  local tools_dir="$install_dir/tools"
+  local marker="# Added by Codex dotnet setup"
+  local line_root="export DOTNET_ROOT=\"$install_dir\""
+  local line_root_x64="export DOTNET_ROOT_X64=\"$install_dir\""
+  local line_path="export PATH=\"$install_dir:$tools_dir:\$PATH\""
+  local targets=("$HOME/.bashrc" "$HOME/.profile")
+
+  if [[ -n "${ZSH_VERSION:-}" || "${SHELL:-}" == *zsh ]]; then
+    targets+=("$HOME/.zshrc")
+  fi
+
+  for target in "${targets[@]}"; do
+    if [[ -e "$target" && ! -w "$target" ]]; then
+      _dotnet_log warn "Cannot update $target (not writable)"
+      continue
+    fi
+    if [[ ! -e "$target" && -n "${HOME:-}" && ! -w "$HOME" ]]; then
+      _dotnet_log warn "Cannot create $target (home not writable)"
+      continue
+    fi
+    if [[ -f "$target" ]] && grep -q "$marker" "$target" 2>/dev/null; then
+      continue
+    fi
+    if ! grep -q "$tools_dir" "$target" 2>/dev/null; then
+      {
+        echo ""
+        echo "$marker"
+        echo "$line_root"
+        echo "$line_root_x64"
+        echo "$line_path"
+      } >> "$target"
+    fi
+  done
+}
+
 _dotnet_log() {
   local level="$1"
   shift
@@ -42,6 +90,9 @@ _dotnet_log() {
 
 ensure_dotnet() {
   dotnet_env
+  if _dotnet_should_persist; then
+    dotnet_env_persist
+  fi
 
   local channel="${DOTNET_CHANNEL:-10.0}"
 

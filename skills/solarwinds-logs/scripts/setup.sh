@@ -21,7 +21,6 @@ fi
 
 # shellcheck source=../../_shared/scripts/dotnet-env.sh
 source "$SHARED_DOTNET_ENV"
-dotnet_env
 
 install_tool() {
     if [[ ! -d "$TOOLS_DIR" ]]; then
