@@ -79,9 +79,7 @@ function Ensure-DotnetToolsEnv {
     )
 
     Set-DotnetToolsEnv -InstallDir $InstallDir
-    if (Should-PersistDotnetPath) {
-        Update-DotnetToolsProfile -InstallDir $env:DOTNET_INSTALL_DIR
-    }
+    Update-DotnetToolsProfile -InstallDir $env:DOTNET_INSTALL_DIR
 }
 
 function Install-DotnetTool {
@@ -97,9 +95,6 @@ function Install-DotnetTool {
     if ([string]::IsNullOrWhiteSpace($PackageId)) {
         throw 'Missing .NET tool package id'
     }
-
-    Ensure-DotnetRuntime -Channel $Channel -RequiredMajor $RequiredMajor
-    Ensure-DotnetToolsEnv
 
     if (-not [string]::IsNullOrWhiteSpace($ToolsDir)) {
         if (-not (Test-Path $ToolsDir)) {

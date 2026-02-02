@@ -31,17 +31,6 @@ _dotnet_log() {
   esac
 }
 
-_dotnet_should_persist() {
-  case "${DOTNET_PERSIST_PATH:-1}" in
-    0|false|False|FALSE|no|No|NO)
-      return 1
-      ;;
-    *)
-      return 0
-      ;;
-  esac
-}
-
 dotnet_runtime_env() {
   local install_dir="${DOTNET_INSTALL_DIR:-"$HOME/.dotnet"}"
   DOTNET_INSTALL_DIR="$install_dir"
@@ -97,9 +86,7 @@ dotnet_runtime_persist() {
 
 ensure_dotnet_runtime() {
   dotnet_runtime_env
-  if _dotnet_should_persist; then
-    dotnet_runtime_persist
-  fi
+  dotnet_runtime_persist
 
   local channel="${DOTNET_CHANNEL:-10.0}"
   local required_major="${DOTNET_REQUIRED_MAJOR:-${channel%%.*}}"

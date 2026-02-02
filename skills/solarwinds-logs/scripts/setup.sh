@@ -36,5 +36,7 @@ check_env() {
 }
 
 step "SolarWinds Logs Setup"
+ensure_dotnet_runtime
+ensure_dotnet_tools_env
 install_tool
 check_env

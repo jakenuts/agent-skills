@@ -29,20 +29,6 @@ function Invoke-DotnetLog {
     }
 }
 
-function Should-PersistDotnetPath {
-    $value = $env:DOTNET_PERSIST_PATH
-    if ([string]::IsNullOrWhiteSpace($value)) {
-        return $true
-    }
-
-    switch ($value.ToLowerInvariant()) {
-        '0' { return $false }
-        'false' { return $false }
-        'no' { return $false }
-        default { return $true }
-    }
-}
-
 function Set-DotnetRuntimeEnv {
     param(
         [string]$InstallDir
@@ -120,9 +106,7 @@ function Ensure-DotnetRuntime {
     )
 
     Set-DotnetRuntimeEnv
-    if (Should-PersistDotnetPath) {
-        Update-DotnetRuntimeProfile -InstallDir $env:DOTNET_INSTALL_DIR
-    }
+    Update-DotnetRuntimeProfile -InstallDir $env:DOTNET_INSTALL_DIR
 
     if ([string]::IsNullOrWhiteSpace($Channel)) {
         if (-not [string]::IsNullOrWhiteSpace($env:DOTNET_CHANNEL)) {

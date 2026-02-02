@@ -37,5 +37,7 @@ function Check-Env {
 }
 
 Write-Step "SolarWinds Logs Setup"
+Ensure-DotnetRuntime -Channel $channel
+Ensure-DotnetToolsEnv
 Install-Tool
 Check-Env

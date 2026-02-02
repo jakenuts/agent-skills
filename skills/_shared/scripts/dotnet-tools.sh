@@ -61,9 +61,7 @@ dotnet_tools_persist() {
 
 ensure_dotnet_tools_env() {
   dotnet_tools_env
-  if _dotnet_should_persist; then
-    dotnet_tools_persist
-  fi
+  dotnet_tools_persist
 }
 
 install_dotnet_tool() {
@@ -76,9 +74,6 @@ install_dotnet_tool() {
     _dotnet_log err "Missing .NET tool package id"
     return 2
   fi
-
-  ensure_dotnet_runtime || return $?
-  ensure_dotnet_tools_env
 
   if [[ -n "$tools_dir" && ! -d "$tools_dir" ]]; then
     _dotnet_log err "Tool package directory not found: $tools_dir"
