@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Shared .NET environment helpers for skills.
+# Expects step/ok/warn/err logging functions in the caller (fallbacks used if missing).
+
+dotnet_env() {
+  local install_dir="${DOTNET_INSTALL_DIR:-"$HOME/.dotnet"}"
+  DOTNET_INSTALL_DIR="$install_dir"
+  export DOTNET_INSTALL_DIR
+  export DOTNET_ROOT="$install_dir"
+  export DOTNET_ROOT_X64="$install_dir"
+  export PATH="$install_dir:$install_dir/tools:$PATH"
+}
+
+_dotnet_log() {
+  local level="$1"
+  shift
+  if declare -f "$level" >/dev/null 2>&1; then
+    "$level" "$@"
+    return
+  fi
+
+  case "$level" in
+    step)
+      echo ""
+      echo ">> $*"
+      ;;
+    ok)
+      echo "   OK: $*"
+      ;;
+    warn)
+      echo "   WARN: $*"
+      ;;
+    err)
+      echo "   ERROR: $*" >&2
+      ;;
+    *)
+      echo "$*"
+      ;;
+  esac
+}
+
+ensure_dotnet() {
+  dotnet_env
+
+  local channel="${DOTNET_CHANNEL:-10.0}"
+
+  if command -v dotnet >/dev/null 2>&1; then
+    local version
+    version="$(dotnet --version 2>/dev/null || echo "0.0.0")"
+    local major="${version%%.*}"
+    if [[ "$major" -ge 10 ]]; then
+      _dotnet_log ok ".NET SDK $version detected"
+      return 0
+    fi
+    _dotnet_log warn ".NET SDK $version found, but 10.0+ is required"
+  else
+    _dotnet_log warn ".NET SDK not found"
+  fi
+
+  _dotnet_log step "Installing .NET SDK $channel"
+
+  if ! command -v curl >/dev/null 2>&1; then
+    _dotnet_log err "curl is required to install .NET. Install curl and rerun this script."
+    return 2
+  fi
+
+  local installer
+  installer="$(mktemp)"
+  curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$installer"
+  bash "$installer" --channel "$channel" --install-dir "$DOTNET_INSTALL_DIR"
+  rm -f "$installer"
+
+  _dotnet_log ok ".NET SDK installed to $DOTNET_INSTALL_DIR"
+  _dotnet_log warn "Add $DOTNET_INSTALL_DIR and $DOTNET_INSTALL_DIR/tools to your PATH for future shells"
+}
