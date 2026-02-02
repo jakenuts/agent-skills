@@ -15,38 +15,16 @@ function Write-Ok { param($msg) Write-Host "   OK: $msg" -ForegroundColor Green 
 function Write-Warn { param($msg) Write-Host "   WARN: $msg" -ForegroundColor Yellow }
 function Write-Err { param($msg) Write-Host "   ERROR: $msg" -ForegroundColor Red }
 
-$sharedDotnet = Join-Path $PSScriptRoot '..\..\_shared\scripts\dotnet-env.ps1'
-if (-not (Test-Path $sharedDotnet)) {
-    Write-Err "Shared dotnet helper not found: $sharedDotnet"
+$sharedDotnetTools = Join-Path $PSScriptRoot '..\..\_shared\scripts\dotnet-tools.ps1'
+if (-not (Test-Path $sharedDotnetTools)) {
+    Write-Err "Shared dotnet tools helper not found: $sharedDotnetTools"
     exit 2
 }
 
-. $sharedDotnet
+. $sharedDotnetTools
 
 function Install-Tool {
-    if (-not (Test-Path $toolsDir)) {
-        Write-Err "Tool package directory not found: $toolsDir"
-        exit 2
-    }
-
-    $installed = $null
-    try {
-        $installed = dotnet tool list --global 2>$null | Select-String $packageId
-    } catch {}
-
-    if ($installed) {
-        Write-Ok "Tool already installed: $packageId"
-        return
-    }
-
-    Write-Step "Installing $packageId v$version"
-    & dotnet tool install --global $packageId --version $version --add-source $toolsDir | Out-Null
-
-    if (Get-Command $command -ErrorAction SilentlyContinue) {
-        Write-Ok "Tool installed: $command"
-    } else {
-        Write-Warn "Tool installed but '$command' is not on PATH. Restart your shell and try again."
-    }
+    Install-DotnetTool -PackageId $packageId -Version $version -ToolsDir $toolsDir -CommandName $command -Channel $channel
 }
 
 function Check-Env {
@@ -59,6 +37,5 @@ function Check-Env {
 }
 
 Write-Step "SolarWinds Logs Setup"
-Ensure-Dotnet -Channel $channel
 Install-Tool
 Check-Env

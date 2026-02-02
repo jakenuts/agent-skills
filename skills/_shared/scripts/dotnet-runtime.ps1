@@ -1,4 +1,4 @@
-# Shared .NET environment helpers for skills.
+# Shared .NET runtime helpers for skills.
 # Expects Write-Step/Write-Ok/Write-Warn/Write-Err in the caller (fallbacks used if missing).
 
 function Invoke-DotnetLog {
@@ -29,7 +29,21 @@ function Invoke-DotnetLog {
     }
 }
 
-function Set-DotnetEnv {
+function Should-PersistDotnetPath {
+    $value = $env:DOTNET_PERSIST_PATH
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return $true
+    }
+
+    switch ($value.ToLowerInvariant()) {
+        '0' { return $false }
+        'false' { return $false }
+        'no' { return $false }
+        default { return $true }
+    }
+}
+
+function Set-DotnetRuntimeEnv {
     param(
         [string]$InstallDir
     )
@@ -45,24 +59,14 @@ function Set-DotnetEnv {
     $env:DOTNET_INSTALL_DIR = $InstallDir
     $env:DOTNET_ROOT = $InstallDir
     $env:DOTNET_ROOT_X64 = $InstallDir
-    $env:PATH = "$InstallDir;$InstallDir\tools;$env:PATH"
-}
 
-function Should-PersistDotnetPath {
-    $value = $env:DOTNET_PERSIST_PATH
-    if ([string]::IsNullOrWhiteSpace($value)) {
-        return $true
-    }
-
-    switch ($value.ToLowerInvariant()) {
-        '0' { return $false }
-        'false' { return $false }
-        'no' { return $false }
-        default { return $true }
+    $pathEntries = $env:PATH -split ';'
+    if ($pathEntries -notcontains $InstallDir) {
+        $env:PATH = "$InstallDir;$env:PATH"
     }
 }
 
-function Update-DotnetProfile {
+function Update-DotnetRuntimeProfile {
     param(
         [string]$InstallDir
     )
@@ -90,34 +94,34 @@ function Update-DotnetProfile {
             New-Item -ItemType File -Path $profileTarget -Force | Out-Null
         }
 
-        $marker = '# Added by Codex dotnet setup'
-        $toolsDir = Join-Path $InstallDir 'tools'
+        $marker = '# Added by Codex dotnet runtime'
         $content = Get-Content -Path $profileTarget -ErrorAction SilentlyContinue
         if ($content -and ($content -match [regex]::Escape($marker))) {
             return
         }
-        if ($content -and ($content -match [regex]::Escape($toolsDir))) {
+        if ($content -and ($content -match [regex]::Escape($InstallDir))) {
             return
         }
 
         Add-Content -Path $profileTarget -Value ''
         Add-Content -Path $profileTarget -Value $marker
-        Add-Content -Path $profileTarget -Value "\$env:DOTNET_ROOT = '$InstallDir'"
-        Add-Content -Path $profileTarget -Value "\$env:DOTNET_ROOT_X64 = '$InstallDir'"
-        Add-Content -Path $profileTarget -Value "\$env:PATH = '$InstallDir;$toolsDir;' + \$env:PATH"
+        Add-Content -Path $profileTarget -Value "`$env:DOTNET_ROOT = '$InstallDir'"
+        Add-Content -Path $profileTarget -Value "`$env:DOTNET_ROOT_X64 = '$InstallDir'"
+        Add-Content -Path $profileTarget -Value "`$env:PATH = '$InstallDir;' + `$env:PATH"
     } catch {
         Invoke-DotnetLog -Level 'Warn' -Message "Could not update PowerShell profile: $($_.Exception.Message)"
     }
 }
 
-function Ensure-Dotnet {
+function Ensure-DotnetRuntime {
     param(
-        [string]$Channel
+        [string]$Channel,
+        [int]$RequiredMajor
     )
 
-    Set-DotnetEnv
+    Set-DotnetRuntimeEnv
     if (Should-PersistDotnetPath) {
-        Update-DotnetProfile -InstallDir $env:DOTNET_INSTALL_DIR
+        Update-DotnetRuntimeProfile -InstallDir $env:DOTNET_INSTALL_DIR
     }
 
     if ([string]::IsNullOrWhiteSpace($Channel)) {
@@ -125,6 +129,14 @@ function Ensure-Dotnet {
             $Channel = $env:DOTNET_CHANNEL
         } else {
             $Channel = '10.0'
+        }
+    }
+
+    if (-not $RequiredMajor) {
+        if (-not [string]::IsNullOrWhiteSpace($env:DOTNET_REQUIRED_MAJOR)) {
+            $RequiredMajor = [int]$env:DOTNET_REQUIRED_MAJOR
+        } else {
+            $RequiredMajor = [int]($Channel.Split('.')[0])
         }
     }
 
@@ -137,11 +149,11 @@ function Ensure-Dotnet {
 
     if ($version) {
         $major = [int]($version.Split('.')[0])
-        if ($major -ge 10) {
+        if ($major -ge $RequiredMajor) {
             Invoke-DotnetLog -Level 'Ok' -Message ".NET SDK $version detected"
             return
         }
-        Invoke-DotnetLog -Level 'Warn' -Message ".NET SDK $version found, but 10.0+ is required"
+        Invoke-DotnetLog -Level 'Warn' -Message ".NET SDK $version found, but $RequiredMajor.0+ is required"
     } else {
         Invoke-DotnetLog -Level 'Warn' -Message ".NET SDK not found"
     }
@@ -153,5 +165,5 @@ function Ensure-Dotnet {
     & powershell -ExecutionPolicy Bypass -File $installer -Channel $Channel -InstallDir $env:DOTNET_INSTALL_DIR | Out-Null
 
     Invoke-DotnetLog -Level 'Ok' -Message ".NET SDK installed to $env:DOTNET_INSTALL_DIR"
-    Invoke-DotnetLog -Level 'Warn' -Message "Add $env:DOTNET_INSTALL_DIR and $env:DOTNET_INSTALL_DIR\tools to your PATH for future shells"
+    Invoke-DotnetLog -Level 'Warn' -Message "Add $env:DOTNET_INSTALL_DIR to your PATH for future shells"
 }
