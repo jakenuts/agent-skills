@@ -13,35 +13,17 @@ ok() { echo "   OK: $1"; }
 warn() { echo "   WARN: $1"; }
 err() { echo "   ERROR: $1" >&2; }
 
-SHARED_DOTNET_ENV="$SKILL_DIR/../_shared/scripts/dotnet-env.sh"
-if [[ ! -f "$SHARED_DOTNET_ENV" ]]; then
-    err "Shared dotnet helper not found: $SHARED_DOTNET_ENV"
+SHARED_DOTNET_TOOLS="$SKILL_DIR/../_shared/scripts/dotnet-tools.sh"
+if [[ ! -f "$SHARED_DOTNET_TOOLS" ]]; then
+    err "Shared dotnet tools helper not found: $SHARED_DOTNET_TOOLS"
     exit 2
 fi
 
-# shellcheck source=../../_shared/scripts/dotnet-env.sh
-source "$SHARED_DOTNET_ENV"
-dotnet_env
+# shellcheck source=../../_shared/scripts/dotnet-tools.sh
+source "$SHARED_DOTNET_TOOLS"
 
 install_tool() {
-    if [[ ! -d "$TOOLS_DIR" ]]; then
-        err "Tool package directory not found: $TOOLS_DIR"
-        exit 2
-    fi
-
-    if dotnet tool list --global 2>/dev/null | grep -qi "$PACKAGE_ID"; then
-        ok "Tool already installed: $PACKAGE_ID"
-        return 0
-    fi
-
-    step "Installing $PACKAGE_ID v$VERSION"
-    dotnet tool install --global "$PACKAGE_ID" --version "$VERSION" --add-source "$TOOLS_DIR"
-
-    if command -v "$COMMAND" >/dev/null 2>&1; then
-        ok "Tool installed: $COMMAND"
-    else
-        warn "Tool installed but '$COMMAND' is not on PATH. Restart your shell and try again."
-    fi
+    install_dotnet_tool "$PACKAGE_ID" "$VERSION" "$TOOLS_DIR" "$COMMAND"
 }
 
 check_env() {
@@ -54,6 +36,7 @@ check_env() {
 }
 
 step "SolarWinds Logs Setup"
-ensure_dotnet
+ensure_dotnet_runtime
+ensure_dotnet_tools_env
 install_tool
 check_env
