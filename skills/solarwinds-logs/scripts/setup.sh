@@ -13,14 +13,14 @@ ok() { echo "   OK: $1"; }
 warn() { echo "   WARN: $1"; }
 err() { echo "   ERROR: $1" >&2; }
 
-SHARED_DOTNET_TOOLS="$SKILL_DIR/../_shared/scripts/dotnet-tools.sh"
-if [[ ! -f "$SHARED_DOTNET_TOOLS" ]]; then
-    err "Shared dotnet tools helper not found: $SHARED_DOTNET_TOOLS"
+DOTNET_TOOLS_HELPER="$SKILL_DIR/scripts/lib/dotnet-tools.sh"
+if [[ ! -f "$DOTNET_TOOLS_HELPER" ]]; then
+    err "dotnet tools helper not found: $DOTNET_TOOLS_HELPER"
     exit 2
 fi
 
-# shellcheck source=../../_shared/scripts/dotnet-tools.sh
-source "$SHARED_DOTNET_TOOLS"
+# shellcheck source=lib/dotnet-tools.sh
+source "$DOTNET_TOOLS_HELPER"
 
 install_tool() {
     install_dotnet_tool "$PACKAGE_ID" "$VERSION" "$TOOLS_DIR" "$COMMAND"

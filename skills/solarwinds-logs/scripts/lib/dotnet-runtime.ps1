@@ -1,5 +1,5 @@
-# Shared .NET runtime helpers for skills.
-# Expects Write-Step/Write-Ok/Write-Warn/Write-Err in the caller (fallbacks used if missing).
+# .NET runtime helpers for skill setup.
+# Provides functions to install .NET SDK and configure PATH persistence.
 
 function Invoke-DotnetLog {
     param(

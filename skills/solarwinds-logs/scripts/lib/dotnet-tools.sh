@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-# Shared .NET global tool helpers for skills.
-# Expects step/ok/warn/err logging functions in the caller (fallbacks used if missing).
+# .NET global tool helpers for skill setup.
+# Provides functions to install and configure dotnet global tools.
 
+# Source the runtime helper from the same directory
 DOTNET_RUNTIME_HELPER="${DOTNET_RUNTIME_HELPER:-"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dotnet-runtime.sh"}"
 if [[ ! -f "$DOTNET_RUNTIME_HELPER" ]]; then
-  echo "   ERROR: Shared dotnet runtime helper not found: $DOTNET_RUNTIME_HELPER" >&2
+  echo "   ERROR: dotnet runtime helper not found: $DOTNET_RUNTIME_HELPER" >&2
   return 2 2>/dev/null || exit 2
 fi
 
