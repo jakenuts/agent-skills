@@ -14,7 +14,7 @@ Design CLI surface area (syntax + behavior), human-first, script-friendly.
 
 ## Do This First
 
-- Read `agent-scripts/skills/create-cli/references/cli-guidelines.md` and apply it as the default rubric.
+- Read `references/cli-guidelines.md` and apply it as the default rubric.
 - Upstream/full guidelines: https://clig.dev/ (propose changes: https://github.com/cli-guidelines/cli-guidelines)
 - Ask only the minimum clarifying questions needed to lock the interface.
 
