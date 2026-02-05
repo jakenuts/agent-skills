@@ -15,13 +15,13 @@ function Write-Ok { param($msg) Write-Host "   OK: $msg" -ForegroundColor Green 
 function Write-Warn { param($msg) Write-Host "   WARN: $msg" -ForegroundColor Yellow }
 function Write-Err { param($msg) Write-Host "   ERROR: $msg" -ForegroundColor Red }
 
-$sharedDotnetTools = Join-Path $PSScriptRoot '..\..\_shared\scripts\dotnet-tools.ps1'
-if (-not (Test-Path $sharedDotnetTools)) {
-    Write-Err "Shared dotnet tools helper not found: $sharedDotnetTools"
+$dotnetToolsHelper = Join-Path $PSScriptRoot 'lib\dotnet-tools.ps1'
+if (-not (Test-Path $dotnetToolsHelper)) {
+    Write-Err "dotnet tools helper not found: $dotnetToolsHelper"
     exit 2
 }
 
-. $sharedDotnetTools
+. $dotnetToolsHelper
 
 function Install-Tool {
     Install-DotnetTool -PackageId $packageId -Version $version -ToolsDir $toolsDir -CommandName $command -Channel $channel

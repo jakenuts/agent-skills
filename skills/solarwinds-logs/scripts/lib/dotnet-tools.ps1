@@ -1,5 +1,5 @@
-# Shared .NET global tool helpers for skills.
-# Expects Write-Step/Write-Ok/Write-Warn/Write-Err in the caller (fallbacks used if missing).
+# .NET global tool helpers for skill setup.
+# Provides functions to install and configure dotnet global tools.
 
 $runtimeHelper = $env:DOTNET_RUNTIME_HELPER
 if ([string]::IsNullOrWhiteSpace($runtimeHelper)) {
@@ -7,8 +7,8 @@ if ([string]::IsNullOrWhiteSpace($runtimeHelper)) {
 }
 
 if (-not (Test-Path $runtimeHelper)) {
-    Write-Host "   ERROR: Shared dotnet runtime helper not found: $runtimeHelper" -ForegroundColor Red
-    throw "Shared dotnet runtime helper not found: $runtimeHelper"
+    Write-Host "   ERROR: dotnet runtime helper not found: $runtimeHelper" -ForegroundColor Red
+    throw "dotnet runtime helper not found: $runtimeHelper"
 }
 
 . $runtimeHelper

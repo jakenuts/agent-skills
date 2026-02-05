@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Shared .NET runtime helpers for skills.
-# Expects step/ok/warn/err logging functions in the caller (fallbacks used if missing).
+# .NET runtime helpers for skill setup.
+# Provides functions to install .NET SDK and configure PATH persistence.
 
 _dotnet_log() {
   local level="$1"
