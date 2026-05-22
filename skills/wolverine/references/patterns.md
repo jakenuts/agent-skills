@@ -157,6 +157,28 @@ Drop-in steps:
 
 Upstream `introduction/from-mediatr.md` has a complete migration example.
 
+> ⚠️ **MediatR survival kit — two semantic shifts in one move.** If you relied
+> on MediatR's `INotification` being **synchronous, in-process, and
+> in-memory**, your code now has two new failure modes under Wolverine's
+> `PublishAsync`: (a) handlers may run **in parallel**; (b) a process crash
+> after the publisher returns but before delivery **loses the messages**. The
+> three-line fix that restores both guarantees:
+>
+> ```csharp
+> opts.PersistMessagesWithPostgresql(cs, "wolverine"); // or SqlServer / Marten
+> opts.Policies.AutoApplyTransactions();
+> opts.LocalQueue("notifications").Sequential();
+> // route the events that need ordering to this queue:
+> opts.PublishMessage<MyEvent>().ToLocalQueue("notifications").UseDurableInbox();
+> ```
+>
+> Prefer **cascading return values** (`return new EventA(); yield return new EventB();`)
+> over calling `await bus.PublishAsync(...)` *inside* a handler — cascaded
+> messages are automatically staged in the outbox in the same transaction as
+> your DB writes; explicit `PublishAsync` calls inside a handler are only
+> outbox-staged if the transactional middleware is wired and your handler
+> takes the session/`DbContext` as a parameter.
+
 ## Migrating from MVC controllers
 
 Two paths.
