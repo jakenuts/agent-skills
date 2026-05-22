@@ -32,6 +32,10 @@
         "test -f ~/.claude/skills/wolverine/SKILL.md && echo SKILL.md exists",
         "test -d ~/.claude/skills/wolverine/references && echo references dir exists",
         "test $(ls ~/.claude/skills/wolverine/references/*.md | wc -l) -eq 9 && echo all 9 reference files present",
+        "echo === Checking elevenlabs-speech-engine skill ===",
+        "test -f ~/.claude/skills/elevenlabs-speech-engine/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.claude/skills/elevenlabs-speech-engine/references && echo references dir exists",
+        "test $(ls ~/.claude/skills/elevenlabs-speech-engine/references/*.md | wc -l) -eq 7 && echo all 7 reference files present",
         "echo === All skills deployed successfully ==="
       ],
       "prompts": []
@@ -67,6 +71,10 @@
         "test -f ~/.codex/skills/wolverine/SKILL.md && echo SKILL.md exists",
         "test -d ~/.codex/skills/wolverine/references && echo references dir exists",
         "test $(ls ~/.codex/skills/wolverine/references/*.md | wc -l) -eq 9 && echo all 9 reference files present",
+        "echo === Checking elevenlabs-speech-engine skill ===",
+        "test -f ~/.codex/skills/elevenlabs-speech-engine/SKILL.md && echo SKILL.md exists",
+        "test -d ~/.codex/skills/elevenlabs-speech-engine/references && echo references dir exists",
+        "test $(ls ~/.codex/skills/elevenlabs-speech-engine/references/*.md | wc -l) -eq 7 && echo all 7 reference files present",
         "echo === All skills deployed successfully ==="
       ],
       "prompts": []
