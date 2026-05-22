@@ -119,16 +119,34 @@ Enable per-handler with `[Transactional]`, or globally:
 opts.Policies.AutoApplyTransactions();
 ```
 
-Now this handler is correct without any explicit `SaveChangesAsync`:
+Now this handler is correct without any explicit `SaveChangesAsync` — works
+identically for Marten and EF Core. Wolverine opens the transaction, injects
+the session/`DbContext`, intercepts your returned events into the outbox,
+commits once, then ships the staged messages:
 
 ```csharp
+// Marten
 public static OrderCreated Handle(CreateOrder cmd, IDocumentSession session)
 {
     var order = new Order { Description = cmd.Description };
     session.Store(order);
     return new OrderCreated(order.Id);    // staged in outbox, sent on commit
 }
+
+// EF Core — same shape, different session type
+public static OrderCreated Handle(CreateOrder cmd, AppDbContext db)
+{
+    var order = new Order { Description = cmd.Description };
+    db.Orders.Add(order);
+    return new OrderCreated(order.Id);    // staged in outbox, sent on SaveChanges
+}
 ```
+
+> ⚠️ **Don't call `SaveChangesAsync` yourself when transactional middleware
+> is in effect.** The middleware commits at the end of the handler. A manual
+> `SaveChangesAsync` produces a second commit and the outbox staging that
+> Wolverine added after your return value is committed in a different
+> transaction from your business writes — defeating the entire point.
 
 ## Idempotency
 

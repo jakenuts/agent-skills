@@ -32,9 +32,21 @@ public static async Task Examples(IMessageBus bus)
 - `InvokeAsync` runs through the handler **inline** in the current thread.
   Only the `Retry` and `RetryWithCooldown` error policies apply automatically.
 - `SendAsync` throws `IndicatesNoHandlersException` if no subscriber exists.
-- `PublishAsync` is the right choice for events.
+  If "a handler isn't firing" after `SendAsync`, this exception is the first
+  thing to look for in logs.
+- `PublishAsync` is the right choice for events (0+ subscribers OK).
 - The `IMessageContext` variant of these (only available **inside a handler**)
   carries the current envelope, so headers like correlation id propagate.
+
+> ⚠️ **Durability warning for MediatR refugees.** `PublishAsync` and
+> `SendAsync` are **not** durable by default — they queue in memory and a
+> process crash between handler return and broker accept loses the message.
+> MediatR's `INotification` was in-process and synchronous, so teams often
+> assume "published == persisted." With Wolverine you only get that guarantee
+> by enabling the transactional outbox (see [durability.md](durability.md)).
+> Equally, MediatR `INotification` handlers run **sequentially in-process**;
+> Wolverine routes to per-message-type local queues that may run in **parallel**
+> unless you call `.Sequential()` on the queue.
 
 ## DeliveryOptions
 

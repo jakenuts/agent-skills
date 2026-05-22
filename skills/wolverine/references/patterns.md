@@ -138,7 +138,8 @@ upstream `durability/managing.md` and `tutorials/leader-election.md`.
 | MediatR | Wolverine |
 |---|---|
 | `IRequest<T>` / `IRequestHandler<TRequest,TResponse>` | Plain record + plain method named `Handle` |
-| `INotification` / `INotificationHandler` | Same — return value or `IMessageBus.PublishAsync` |
+| `INotification` / `INotificationHandler` | Plain record + return value (cascade) or `IMessageBus.PublishAsync` |
+| **Notification dispatch** — sequential, in-process, in-memory | **`PublishAsync`** — routes via per-message-type local queue; parallel by default (use `.Sequential()` to serialize); durable only if outbox is enabled |
 | `IPipelineBehavior<T>` | Conventional middleware ([middleware-and-policies.md](middleware-and-policies.md)) |
 | `Mediator.Send` | `IMessageBus.InvokeAsync<T>` |
 | Constructor-injected services | Method-injected — no constructor required |

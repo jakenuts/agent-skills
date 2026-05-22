@@ -256,12 +256,37 @@ Actions: `Retry`, `RetryWithCooldown`, `Requeue`, `ScheduleRetry`,
 `ScheduleRetryIndefinitely`, `Discard`, `MoveToErrorQueue`,
 `PauseThenRequeue`/`AndPauseProcessing`.
 
-**Gotcha:** Calling `IMessageBus.InvokeAsync()` only honors **Retry** / **RetryWithCooldown**
-automatically. The other actions only apply to messages received from a listener.
+**Gotcha — `InvokeAsync` only honors retry actions.** When a message goes
+through `bus.InvokeAsync(...)`, only `Retry` and `RetryWithCooldown` are
+applied. `Requeue`, `MoveToErrorQueue`, `Discard`, and `PauseThenRequeue` are
+silently ignored — once retries exhaust, the exception propagates to the
+caller. If you need dead-letter semantics on synchronous invocation, either
+`try`/`catch` in the caller or route via `bus.SendAsync` so a listener
+processes the message.
+
+**Retry then dead-letter.** Wolverine treats an unmatched exception after the
+retry rule exhausts as a candidate for dead-lettering automatically. Adding an
+explicit `MoveToErrorQueue` rule for the same exception type guarantees the
+behavior is documented in code:
+
+```csharp
+opts.OnException<SqlException>()
+    .ScheduleRetry(1.Seconds(), 5.Seconds(), 30.Seconds())
+    .WithExponentialJitter();
+// after the 3 retries fail, the next exception of this type goes to dead letter:
+opts.OnException<SqlException>().MoveToErrorQueue();
+```
 
 Add jitter (one strategy per rule) to avoid thundering herds:
-`WithFullJitter()` (×1–×2), `WithBoundedJitter(0.25)` (+0%–+25%),
-`WithExponentialJitter()` (spread grows per attempt).
+
+| Strategy | Effective delay | Pick when |
+|---|---|---|
+| `WithFullJitter()` | `[d, 2d]` | Default — broadest dispersal, AWS-style. |
+| `WithBoundedJitter(0.25)` | `[d, d·1.25]` | You tuned the delays deliberately and want a narrow spread. |
+| `WithExponentialJitter()` | `[d, d·(1+2·attempt)]` | Persistent failures should fan out more than transient ones — good for "downstream is recovering" scenarios. |
+
+Only one strategy per rule. The configured delay is always the **floor**;
+jitter only ever extends it.
 
 ## FluentValidation integration
 

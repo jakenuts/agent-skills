@@ -147,6 +147,9 @@ dotnet run -- check-env             # validates env vars, connection strings, et
 dotnet run -- resources setup       # provision queues/exchanges/inbox-outbox schema
 dotnet run -- resources teardown    # remove provisioned resources
 dotnet run -- resources statistics  # counts
+# `resources setup` creates: inbox/outbox + dead-letter tables (e.g. wolverine.Envelope,
+# wolverine.IncomingEnvelopes, wolverine.OutgoingEnvelopes) in the configured message
+# store, plus declared queues/exchanges/topics on every transport that supports it.
 dotnet run -- codegen preview       # dump generated source to console
 dotnet run -- codegen write         # persist to Internal/Generated/
 dotnet run -- codegen test          # compile-check pre-generated code
@@ -191,10 +194,31 @@ Covers durability storage connectivity, listener health, and node leadership.
 
 ## Common diagnostics recipes
 
-**Handler not firing.**
-1. `dotnet run -- describe` — is the message type listed?
-2. `Console.WriteLine(opts.DescribeHandlerMatch(typeof(MyHandler)));` — explains rejection.
-3. Confirm assembly is scanned (`[assembly: WolverineModule]` or `Discovery.IncludeAssembly(...)`).
+**Handler not firing.** Run these in order — stop as soon as one reveals the cause.
+
+1. **Check for the obvious exception first.** `SendAsync` throws
+   `IndicatesNoHandlersException` when no subscriber exists. Grep logs for it.
+   Also grep for `ValidationException` — FluentValidation failures discard
+   the message by default, so the handler genuinely never runs.
+2. **`dotnet run -- describe`** — is the message type listed? Is it bound to
+   an endpoint? A handler can exist but have no route if you called
+   `DisableConventionalLocalRouting()` without an explicit `PublishMessage<T>`.
+3. **`Console.WriteLine(opts.DescribeHandlerMatch(typeof(MyHandler)));`** —
+   explains why a type was or wasn't accepted as a handler (public-class /
+   public-method / `Handle`/`Consume` naming).
+4. **Verify assembly scanning.** Handlers outside the application assembly
+   need `[assembly: WolverineModule]` on a source file in that assembly, or
+   `opts.Discovery.IncludeAssembly(typeof(MyHandler).Assembly)`.
+5. **Codegen drift.** If you recently changed the handler signature or
+   middleware while in `TypeLoadMode.Static` or `Auto`, delete the stale file
+   under `Internal/Generated/` and re-run `dotnet run -- codegen write`.
+6. **Programmatic route check** (drop into `Program.cs` temporarily):
+   ```csharp
+   var runtime = app.Services.GetRequiredService<IWolverineRuntime>();
+   var router  = runtime.RoutingFor(typeof(MyMessage));
+   Console.WriteLine($"Routes: {router.Routes.Count}");
+   foreach (var r in router.Routes) Console.WriteLine(r);
+   ```
 
 **Codegen exception at startup.**
 - Run `dotnet run -- codegen preview` and read the failing class.

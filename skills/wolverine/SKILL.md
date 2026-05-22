@@ -107,7 +107,10 @@ unfamiliar handler code.
 - **Don't abstract `IMessageBus`.** Inject it as a method parameter when you need it; otherwise prefer returning cascading messages so handlers stay testable as pure functions.
 - **Discovery is allow-list based.** Only the application assembly is scanned by default. Other assemblies need `[assembly: WolverineModule]` or `opts.Discovery.IncludeAssembly(...)`.
 - **Generated code is not auto-regenerated.** When you change a handler signature or middleware while using `Static`/`Auto` codegen mode, delete the stale file under `Internal/Generated/` (or run `dotnet run -- codegen write`).
-- **`InvokeAsync` only auto-applies Retry policies** from your error rules. Requeue / discard / dead-letter only apply when a message is processed from a listener.
+- **`InvokeAsync` only auto-applies Retry policies** from your error rules. `Requeue`, `Discard`, `MoveToErrorQueue`, and `PauseThenRequeue` are silently ignored when invoking inline — exhausted retries propagate the exception back to the caller. If you need dead-letter semantics on synchronous invocation, catch it yourself or use `bus.SendAsync` so a listener processes it.
+- **`SendAsync` throws when no subscriber exists** — `IndicatesNoHandlersException`. If a handler "doesn't fire" after `SendAsync`, check the exception first (see [testing-and-ops.md](references/testing-and-ops.md) → diagnostics recipes); use `PublishAsync` for events with 0+ subscribers.
+- **Fire-and-forget is only durable with the outbox.** `PublishAsync` / `SendAsync` are in-memory by default. A crash between the handler returning and the broker accepting the message loses the event. Enable the outbox in [durability.md](references/durability.md) when you need guaranteed delivery — coming from MediatR's in-process `INotification` model, this is the trap most teams hit first.
+- **Don't double-commit.** With `opts.Policies.AutoApplyTransactions()` or `[Transactional]`, the middleware calls `SaveChangesAsync()` / Marten `SaveChangesAsync()` for you and flushes the outbox in the same transaction. Calling it yourself produces a second commit and breaks atomicity.
 - **Don't read CQRS/event-sourcing language into a Wolverine question.** Wolverine handles plain commands and events just as well; only the Marten integration adds event-sourcing-specific helpers (`[Aggregate]`, `IEvent<T>`, event forwarding). Skip [persistence.md](references/persistence.md)'s event-sourcing section unless the user is actually using `IDocumentSession.Events` or Marten projections.
 - **Local queues are real.** A message with a known handler is, by default, routed to a per-message-type in-process queue — not invoked synchronously. Use `InvokeAsync` if you need synchronous semantics; configure `opts.LocalQueue(...)` to tune parallelism and durability.
 
@@ -138,3 +141,4 @@ for it when handlers "go missing".
 - "Custom middleware / cross-cutting policy" → `middleware-and-policies.md`
 - "Integration test / cold-start / CLI / logging" → `testing-and-ops.md`
 - "Migrate from MediatR/MVC/MinAPI" or "should this be a modular monolith" → `patterns.md`
+- "I just want a pure CQRS mediator, no broker, no ES" → `patterns.md#mediator-only` (start here for MediatR-replacement use cases)
