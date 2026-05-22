@@ -112,6 +112,13 @@ Automated git workflow helpers for common development tasks.
 
 **Dependencies:** None - uses native git commands.
 
+### wolverine
+WolverineFx (.NET) framework expertise: handlers, messaging, transports, HTTP endpoints, durable inbox/outbox, sagas, Marten/EF Core integration, testing, codegen.
+
+**Use when:** Working in any .NET project that uses `WolverineFx*` packages, or when the user asks about Wolverine handlers, message routing, transports, durability, sagas, or migrating to/from MediatR/NServiceBus/MassTransit.
+
+**Dependencies:** None — reference-only skill. Uses progressive disclosure (lean SKILL.md plus topic-scoped references in `references/`) so agents only load the section relevant to the current task.
+
 ## Directory Structure
 
 ```
