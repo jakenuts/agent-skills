@@ -20,12 +20,26 @@ diagramming session and follow it:
 (Replace the host with whatever app URL the user gave you; the skill doc lives
 at `<app-url>/skill.md`.)
 
-## Connecting (given the user's `{ url, token }`)
+## Connecting (given only the user's app `<url>`)
 
-The user does a ~30s one-time setup: log into their Agent Vision app, open
-`<url>/_agent-native/mcp/connect`, mint a connection token, and paste the **app
-URL + token** to you. The token is per-user, scoped, expiry-bound, and revocable
-from that same page. It never exposes their password or any server secret.
+**Primary — device flow, you drive it.** No pre-minted token, no password:
+
+1. `POST <url>/_agent-native/mcp/connect/device/start` (empty JSON body, no
+   auth) → `{ device_code, user_code, verification_uri_complete, interval,
+   expires_in }`.
+2. Tell the user in chat: "Open `<verification_uri_complete>` and click
+   **Authorize this device** (code `<user_code>`)." Any device where they're
+   already logged in works.
+3. `POST <url>/_agent-native/mcp/connect/device/poll` with
+   `{ "device_code": "<device_code>" }` every `interval` seconds until it
+   returns `approved` → `{ token, mcpUrl, ... }` (`pending` = keep going;
+   `expired`/`consumed` = restart at step 1).
+4. Use the token exactly as below.
+
+**Fallback — user-minted token:** the user logs in, opens
+`<url>/_agent-native/mcp/connect`, clicks **Create connection token**, and
+pastes `{ url, token }` to you. Tokens are per-user, scoped, expiry-bound, and
+revocable from that same page.
 
 **MCP clients (Claude Code, etc.):**
 
