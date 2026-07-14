@@ -22,6 +22,10 @@ at `<app-url>/skill.md`.)
 
 ## Connecting (given only the user's app `<url>`)
 
+**Step 0 — check the environment first:** if `AGENT_NATIVE_VISION_URL` and
+`AGENT_NATIVE_VISION_TOKEN` env vars are set (provisioned containers), use them
+and skip all auth below — bearer header on every call, done.
+
 **Primary — device flow, you drive it.** No pre-minted token, no password:
 
 1. `POST <url>/_agent-native/mcp/connect/device/start` (empty JSON body, no
@@ -77,4 +81,5 @@ params; writes are POST with a JSON body. Without the header these routes return
   patches, icon names, idioms (callouts, zones, trunk edges, code text) — read
   `<app-url>/skill.md`, which is the single source of truth and stays current
   with the deployed app.
+
 
